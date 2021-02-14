@@ -21,10 +21,11 @@
             Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
             HelpersExtensions.VERBOSE = false;
             HarmonyHelper.DoOnHarmonyReady(() => HarmonyUtil.InstallHarmony(HARMONY_ID));
-            Application.runInBackground = false;
+            Application.runInBackground = true;
 
-            if (HelpersExtensions.InGameOrEditor) {
-                for(ushort nodeID =1; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
+            if (HelpersExtensions.InGame) {
+                Application.runInBackground = true;
+                for (ushort nodeID =1; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
                     if(nodeID.ToNode().m_flags.CheckFlags(NetNode.Flags.Created | NetNode.Flags.Transition, NetNode.Flags.Deleted))
                         NetManager.instance.UpdateNode(nodeID);
                 }

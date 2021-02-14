@@ -108,12 +108,12 @@ namespace NodeController.Patches {
                 Log.DebugWait("found- Test_Offset_Road_pavement_2");
                 float d = occurance switch
                 {
-                    1 => 5, //main Left
-                    2 => 2, //A left
-                    3 => 5*2-2/4, //main right
+                    1 => -3, //main Left (5=>1)
+                    2 => 2, //A left 
+                    3 => 2, //main right (2=>9.5)
                     4 => 5, //B right
-                    5 => 5, //.z
-                    6 => 5, //.w
+                    5 => 2, //.z
+                    6 => 2, //.w
                     _ => throw new Exception("unexoected occurance:"+ occurance),
                 };
                 width = d;

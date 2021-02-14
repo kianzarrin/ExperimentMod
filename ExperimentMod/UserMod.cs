@@ -1,4 +1,4 @@
-﻿namespace ExperimentMod {
+namespace ExperimentMod {
     using System;
     using JetBrains.Annotations;
     using ICities;
@@ -8,6 +8,16 @@
     using UnityEngine;
 
     public class UserMod : IUserMod {
+
+
+
+
+        //public static string testvar = HarmonyLib.AccessTools.Method("ExperimentMod.UserMod.OnEnabled").Name;
+
+        static UserMod() {
+            Log.Debug("ExperimentMod.UserMod static constructor called!" + Environment.StackTrace);
+        }
+
         public static Version ModVersion => typeof(UserMod).Assembly.GetName().Version;
         public static string VersionString => ModVersion.ToString(2);
         public string Name => "Experimenting Mod " + VersionString;

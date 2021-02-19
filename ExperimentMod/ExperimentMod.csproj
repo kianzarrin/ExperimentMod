@@ -16,7 +16,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
+    <DebugType>pdbonly</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="1.0.5" />
+    <PackageReference Include="Mono.Unofficial.pdb2mdb" Version="4.2.3.4" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
@@ -101,9 +102,10 @@
       <AuxilaryFiles Include="$(TargetDir)Resources\*.png;$(TargetDir)CitiesHarmony.API.dll" />
       <VersionNumber Include="@(Targets->'%(Version)')" />
     </ItemGroup>
-    <Delete Files="$(TargetPath).mdb" />
-    <Exec Command="&quot;$(MonoDir)bin\mono.exe&quot; &quot;$(MonoDir)lib\mono\4.5\pdb2mdb.exe&quot; &quot;$(TargetPath)&quot;" />
-    <Copy SourceFiles="$(TargetPath).mdb" DestinationFolder="$(DeployDir)" />
+    <Copy SourceFiles="$(TargetDir)ExperimentingMod.pdb" DestinationFolder="$(DeployDir)" />
+    <!--<Delete Files="$(TargetPath).mdb" />
+    <Exec Command="&quot;$(PkgMono_Unofficial_pdb2mdb)\tools\pdb2mdb.exe&quot; &quot;$(TargetPath)&quot;" />   
+    <Copy SourceFiles="$(TargetPath).mdb" DestinationFolder="$(DeployDir)" />-->
    
     <Copy SourceFiles="@(AuxilaryFiles)" DestinationFolder="$(DeployDir)" />
     <!-- <Message Importance="high" Text="Deleting $(DeployDir)$(TargetFileName)" /> -->

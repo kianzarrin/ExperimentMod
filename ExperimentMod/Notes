@@ -1,0 +1,9 @@
+﻿C:\Program Files\Unity5.6.7>dir /b/s mono.exe
+C:\Program Files\Unity5.6.7\Editor\Data\Mono\bin\mono.exe
+C:\Program Files\Unity5.6.7\Editor\Data\MonoBleedingEdge\bin\mono.exe
+
+C:\Program Files\Unity5.6.7>dir /b/s pdb2mdb.exe
+C:\Program Files\Unity5.6.7\Editor\Data\Mono\lib\mono\2.0\pdb2mdb.exe
+C:\Program Files\Unity5.6.7\Editor\Data\MonoBleedingEdge\lib\mono\4.5\pdb2mdb.exe
+
+C:\Users\dell\.nuget\packages\mono.pdb2mdb\0.1.0.20130128\tools\pdb2mdb.exe

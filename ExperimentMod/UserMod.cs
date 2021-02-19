@@ -1,4 +1,4 @@
-namespace ExperimentMod {
+﻿namespace ExperimentMod {
     using System;
     using JetBrains.Annotations;
     using ICities;
@@ -6,12 +6,11 @@ namespace ExperimentMod {
     using KianCommons;
     using System.Diagnostics;
     using UnityEngine;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
 
     public class UserMod : IUserMod {
-
-
-
-
         //public static string testvar = HarmonyLib.AccessTools.Method("ExperimentMod.UserMod.OnEnabled").Name;
 
         static UserMod() {
@@ -24,14 +23,57 @@ namespace ExperimentMod {
         public string Description => "control Road/junction transitions";
         const string HARMONY_ID = "Kian.ExperimentMod";
 
+        public static void Logpdbtools()
+        {
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                var name = asm.Name();
+                AppDomain.CurrentDomain.GetAssemblies();
+                if (name == "pdb2mdb" || name.ToLower().Contains("mono"))
+                {
+
+                }
+            }
+        }
+
+
         [UsedImplicitly]
         public void OnEnabled()
         {
             Log.Buffered = false;
-            Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
+
+            string pdbtools = @"C:\Users\dell\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\_pdbtools";
+            var a = Path.Combine(pdbtools, "Mono.Cecil.dll");
+            var b = Path.Combine(pdbtools, "Mono.CompilerServices.SymbolWriter.dll");
+            var pdb2mdb = Path.Combine(pdbtools, "pdb2mdb.exe");
+            
+            Logpdbtools();
+            A
+
+
+
+
+
+
+            //try
+            //{
+            //    Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString());
+            //    Log.Debug("Testing StackTrace:\n" + Environment.StackTrace);
+            //    throw new Exception("some exception");
+            //}
+            //catch (Exception ex)
+            //{
+            //    Log.Exception(ex);
+            //    throw ex;
+            //}
+
+
+
             HelpersExtensions.VERBOSE = false;
             HarmonyHelper.DoOnHarmonyReady(() => HarmonyUtil.InstallHarmony(HARMONY_ID));
             Application.runInBackground = true;
+
+
 
             if (HelpersExtensions.InGame) {
                 Application.runInBackground = true;

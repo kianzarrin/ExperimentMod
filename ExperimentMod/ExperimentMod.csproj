@@ -103,9 +103,9 @@
       <VersionNumber Include="@(Targets->'%(Version)')" />
     </ItemGroup>
     <Copy SourceFiles="$(TargetDir)ExperimentingMod.pdb" DestinationFolder="$(DeployDir)" />
-    <!--<Delete Files="$(TargetPath).mdb" />
-    <Exec Command="&quot;$(PkgMono_Unofficial_pdb2mdb)\tools\pdb2mdb.exe&quot; &quot;$(TargetPath)&quot;" />   
-    <Copy SourceFiles="$(TargetPath).mdb" DestinationFolder="$(DeployDir)" />-->
+    <Delete Files="$(TargetPath).mdb" />
+    <Exec Command='"$(PkgMono_Unofficial_pdb2mdb)\tools\pdb2mdb.exe\" "$(TargetPath)"' />   
+    <Copy SourceFiles="$(TargetPath).mdb" DestinationFolder="$(DeployDir)" />
    
     <Copy SourceFiles="@(AuxilaryFiles)" DestinationFolder="$(DeployDir)" />
     <!-- <Message Importance="high" Text="Deleting $(DeployDir)$(TargetFileName)" /> -->

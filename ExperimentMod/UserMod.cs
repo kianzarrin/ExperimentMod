@@ -36,6 +36,25 @@
             }
         }
 
+        public static Assembly LoadDLL(string path)
+        {
+            try
+            {
+                Log.Debug("Loading assembly from path " + path);
+                var asm = Assembly.Load(File.ReadAllBytes(path));
+                if (asm is not null)
+                {
+                    Log.Debug("Assembly loaded: " + asm);
+                    return asm;
+                }
+            }
+            catch (Exception ex){
+                Log.Exception(ex, showInPanel:false);
+            }
+            Log.Error("failed to load assembly " + path);
+            return null;
+        }
+
 
         [UsedImplicitly]
         public void OnEnabled()
@@ -45,16 +64,26 @@
             string pdbtools = @"C:\Users\dell\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\_pdbtools";
             var a = Path.Combine(pdbtools, "Mono.Cecil.dll");
             var b = Path.Combine(pdbtools, "Mono.CompilerServices.SymbolWriter.dll");
-            var pdb2mdb = Path.Combine(pdbtools, "pdb2mdb.exe");
-            
+            var c = Path.Combine(pdbtools, "pdb2mdb.exe");
+            var d = @"C:\Users\dell\AppData\Local\Colossal Order\Cities_Skylines\Addons\Mods\ExperimentMod\ExperimentingMod.dll";
+
             Logpdbtools();
-            A
 
+            LoadDLL(a);
+            LoadDLL(b);
+            var pdb2mdb = LoadDLL(c);
 
+            Logpdbtools();
 
+            var converter = pdb2mdb.GetType("Pdb2Mdb.Converter", throwOnError:true);
+            var mConvert = converter.GetMethod("Convert");
 
+            File.Delete(d + ".mdb");
 
+            Log.Debug("converting pdb2mdb");
+            mConvert.Invoke(null, new object[] { d });
 
+            return;
             //try
             //{
             //    Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString());

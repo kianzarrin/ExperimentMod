@@ -1,4 +1,4 @@
-namespace ExperimentMod {
+﻿namespace ExperimentMod {
     using System;
     using JetBrains.Annotations;
     using ICities;
@@ -28,8 +28,16 @@ namespace ExperimentMod {
         public void OnEnabled()
         {
             Log.Buffered = false;
-            Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
             HelpersExtensions.VERBOSE = false;
+
+            var sf = new StackFrame();
+            Log.Debug($"il-offset{sf.GetILOffset()} native-offset{sf.GetNativeOffset()} file:{sf.GetFileName()}");
+            return;
+
+
+
+            Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
+            
             HarmonyHelper.DoOnHarmonyReady(() => HarmonyUtil.InstallHarmony(HARMONY_ID));
             Application.runInBackground = true;
 

@@ -11,7 +11,7 @@ jobs:
 
     env:
         RepoName: ExperimentMod
-        Solution_File: ${{ RepoName }}.sln
+        Solution_File: ${{ env.RepoName }}.sln
         DeployDir: Deploy/Debug
         
 

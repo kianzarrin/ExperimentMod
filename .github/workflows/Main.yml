@@ -31,7 +31,7 @@ jobs:
           repository: kianzarrin/CSBinaries
           ref: refs/heads/master
           path: dependencies
-          token: ${{ secrets.GITHUB_TOKEN }} # or CSBINARIES_REPO_PAT ?
+          token: ${{ secrets.CSBINARIES_REPO_PAT }}
 
       - name: Build Solution
         working-directory: src

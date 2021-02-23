@@ -9,28 +9,32 @@ jobs:
     name: Build and Upload Release Asset
     runs-on: windows-latest
 
+    env:
+        RepoName: ExperimentMod
+        Solution_File: ${{ RepoName }}.sln
+        DeployDir: Deploy/Debug
+        
+
     steps:
       - name: Get Sources
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
+        with:
+            submodules: true
 
       - name: Setup Build Environment
         uses: microsoft/setup-msbuild@v1.0.0
 
       - name: Get Referenced Binaries
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
         with:
           repository: kianzarrin/CSBinaries
           ref: refs/heads/master
-          path: binaries
-          token: ${{ secrets.PACKAGES_REPO_PAT }}
+          path: dependencies
+          token: ${{ secrets.GITHUB_TOKEN }} # or CSBINARIES_REPO_PAT ?
 
       - name: Build Solution
         working-directory: src
-        run: | 
-            msbuild ExperimentMod.sln /m /verbosity:minimal /restore 
-            /p:Configuration=Release 
-            /p:CitiesSkylinesBinaries="$env:GITHUB_WORKSPACE\..\binaries\ 
-            /p:DeployDir="src/bin/Deploy/"
+        run: msbuild "$env:Solution_File" /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir="$env:DeployDir"
 
       - name: Get Version Number
         id: get_version_number
@@ -41,9 +45,10 @@ jobs:
         id: pack_assets
         run: |
           $ErrorView = 'NormalView'
-          $env:ASSET_FILE = "src/bin/Deploy/ConflictSolver.${{ steps.get_version_number.outputs.VERSION }}.zip"
-          $env:ASSET_FILE_NAME = "ConflictSolver.${{ steps.get_version_number.outputs.VERSION }}.zip"
-          Compress-Archive -Path src/bin/Deploy/*.dll -DestinationPath $env:ASSET_FILE -CompressionLevel Optimal
+          $env:ASSET_FILE_NAME = "{{ env.RepoName }}.${{ steps.get_version_number.outputs.VERSION }}.zip"
+          $env:ASSET_FILE = "$env:DeployDir/$env:ASSET_FILE_NAME"
+          echo "zipping $env:DeployDir/ to $env:ASSET_FILE ..."
+          Compress-Archive -Path $env:DeployDir/** -DestinationPath $env:ASSET_FILE -CompressionLevel Optimal
           echo "::set-output name=ASSET_FILE::$env:ASSET_FILE"
           echo "::set-output name=ASSET_FILE_NAME::$env:ASSET_FILE_NAME"
 

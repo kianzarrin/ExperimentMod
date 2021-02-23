@@ -35,7 +35,7 @@ jobs:
 
       - name: Build Solution
         working-directory: src
-        run: msbuild "$env:Solution_File" /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir="$env:DeployDir"
+        run: msbuild "$env:Solution_File" /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir=ExperimentMod/bin
 
       - name: Get Version Number
         id: get_version_number

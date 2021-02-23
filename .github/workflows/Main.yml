@@ -33,8 +33,9 @@ jobs:
           token: ${{ secrets.CSBINARIES_REPO_PAT }}
 
       - name: Build Solution
-        run: msbuild ${{ env.Solution_File }} /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir=${{ env.GITHUB_WORKSPACE }}/${{ env.DeployDir }}
-
+        run: msbuild ${{ env.Solution_File }} /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir=${{ env.OutputDir }}
+        env:
+            OutputDir: "$env:GITHUB_WORKSPACE/${{ env.DeployDir }}"
       - name: Get Version Number
         id: get_version_number
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}

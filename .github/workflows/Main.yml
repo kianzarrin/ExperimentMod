@@ -12,10 +12,9 @@ jobs:
 
     env:
         RepoName: ExperimentMod
-        Solution_File: ExperimentMod.sln
-        DeployDir: Deploy/Debug
+        Solution_File: ${{ env.RepoName }}.sln
+        DeployDir: ${{ env.GITHUB_WORKSPACE }}/Deploy/Debug
         
-
     steps:
       - name: Get Sources
         uses: actions/checkout@v2

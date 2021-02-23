@@ -7,12 +7,13 @@ on:
 jobs:
   build:
     name: Build and Upload Release Asset
+
     runs-on: windows-latest
 
     env:
-        RepoName: ExperimentMod
-        Solution_File: ${{ RepoName }}.sln
-        DeployDir: Deploy/Debug
+      RepoName: ExperimentMod
+      Solution_File: ${{ RepoName }}.sln
+      DeployDir: Deploy/Debug
         
 
     steps:

@@ -12,7 +12,7 @@ indent_size = 4
 insert_final_newline = true
 charset = utf-8-bom
 
-[*.csproj]
+[*.{csproj,yml}]
 indent_size = 2
 ###############################
 # .NET Coding Conventions     #

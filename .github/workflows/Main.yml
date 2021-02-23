@@ -12,7 +12,7 @@ jobs:
 
     env:
         RepoName: ExperimentMod
-        Solution_File: ${{ env.RepoName }}.sln
+        Solution_File: ${{ RepoName }}.sln
         DeployDir: ${{ env.GITHUB_WORKSPACE }}/Deploy/Debug
         
     steps:

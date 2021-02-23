@@ -23,7 +23,7 @@ jobs:
             submodules: true
 
       - name: Setup Build Environment
-        uses: microsoft/setup-msbuild@v1.0.0
+        uses: microsoft/setup-msbuild@v1
 
       - name: Get Referenced Binaries
         uses: actions/checkout@v2

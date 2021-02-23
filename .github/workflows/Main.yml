@@ -34,7 +34,7 @@ jobs:
           token: ${{ secrets.CSBINARIES_REPO_PAT }}
 
       - name: Build Solution
-        run: msbuild ExperimentMod.sln /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir=ExperimentMod/bin
+        run: msbuild ${{ env.Solution_File }} /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir=${{ env.DeployDir }}
 
       - name: Get Version Number
         id: get_version_number
@@ -45,7 +45,7 @@ jobs:
         id: pack_assets
         run: |
           $ErrorView = 'NormalView'
-          $env:ASSET_FILE_NAME = "{{ env.RepoName }}.${{ steps.get_version_number.outputs.VERSION }}.zip"
+          $env:ASSET_FILE_NAME = "${{ env.RepoName }}-${{ steps.get_version_number.outputs.VERSION }}.zip"
           $env:ASSET_FILE = "$env:DeployDir/$env:ASSET_FILE_NAME"
           echo "zipping $env:DeployDir/ to $env:ASSET_FILE ..."
           Compress-Archive -Path $env:DeployDir/** -DestinationPath $env:ASSET_FILE -CompressionLevel Optimal

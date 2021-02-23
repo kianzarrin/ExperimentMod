@@ -34,7 +34,6 @@ jobs:
           token: ${{ secrets.CSBINARIES_REPO_PAT }}
 
       - name: Build Solution
-        working-directory: src
         run: msbuild ExperimentMod.sln /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir=ExperimentMod/bin
 
       - name: Get Version Number

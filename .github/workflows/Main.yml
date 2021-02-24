@@ -36,7 +36,7 @@ jobs:
         id: build_solution
         run: | 
             msbuild "${{ env.Solution_File }}" /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir="$env:GITHUB_WORKSPACE/$env:DeployDir"
-            echo "::set-output name=ZIP_FILE::$env:GITHUB_WORKSPACE/$env:DeployDir/../*.zip"
+            echo ::set-output name=ZIP_FILE::${$env:GITHUB_WORKSPACE/$env:DeployDir/../*.zip}
 
       - name: Get Version Number
         id: get_version_number

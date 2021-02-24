@@ -13,7 +13,7 @@ jobs:
     env:
         ModName: ExperimentMod
         Solution_File: ExperimentMod.sln
-        DeployDir: $env:GITHUB_WORKSPACE/Deploy/Debug
+        DeployDir: Deploy/Debug
         
     steps:
       - name: Get Sources
@@ -34,9 +34,7 @@ jobs:
 
       - name: Build Solution
         id: build_solution
-        run: 
-            echo executing msbuild "${{ env.Solution_File }}" /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir="$env:DeployDir"
-            msbuild "${{ env.Solution_File }}" /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir="$env:DeployDir"
+        run: msbuild "${{ env.Solution_File }}" /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir="$env:GITHUB_WORKSPACE/$env:DeployDir"
 
       - name: Get Version Number
         id: get_version_number
@@ -48,9 +46,9 @@ jobs:
         run: |
           $ErrorView = 'NormalView'
           $env:ASSET_FILE_NAME = "${{ env.ModName }}-${{ steps.get_version_number.outputs.VERSION }}.zip"
-          $env:ASSET_FILE = "$env:DeployDir/$env:ASSET_FILE_NAME"
-          echo "zipping $env:DeployDir/ to $env:ASSET_FILE ..."
-          Compress-Archive -Path $env:DeployDir/** -DestinationPath $env:ASSET_FILE -CompressionLevel Optimal
+          $env:ASSET_FILE = "$env:GITHUB_WORKSPACE/$env:DeployDir/$env:ASSET_FILE_NAME"
+          echo "zipping $env:GITHUB_WORKSPACE/$env:DeployDir/ to $env:ASSET_FILE ..."
+          Compress-Archive -Path $env:GITHUB_WORKSPACE/$env:DeployDir/** -DestinationPath $env:ASSET_FILE -CompressionLevel Optimal
           echo "::set-output name=ASSET_FILE::$env:ASSET_FILE"
           echo "::set-output name=ASSET_FILE_NAME::$env:ASSET_FILE_NAME"
 

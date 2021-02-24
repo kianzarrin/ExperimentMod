@@ -4,15 +4,11 @@
     <ProjectGuid>{f6feab9b-fe95-4b86-a1e3-b3833615b3c0}</ProjectGuid>
     <TargetFramework>net35</TargetFramework>
     <Deterministic>false</Deterministic>
-    <AssemblyTitle>ExperimentingMod</AssemblyTitle>
-    <Product>ExperimentingMod</Product>
     <Copyright>Copyright ©  2020</Copyright>
     <Deterministic>false</Deterministic>
     <AssemblyVersion>1.0.0.*</AssemblyVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>latest</LangVersion>
-    <AssemblyName>ExperimentingMod</AssemblyName>
-    <RootNamespace>ExperimentingMod</RootNamespace>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
     <PathMap>$(MSBuildProjectDirectory)\=$(ProjectName)\</PathMap>
@@ -61,6 +57,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="2.0.0" />
+    <PackageReference Include="GitInfo" Version="2.1.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Mono.Unofficial.pdb2mdb" Version="4.2.3.4" />
   </ItemGroup>
   <ItemGroup>
@@ -72,18 +72,25 @@
     <Reference Include="UnityEngine.UI" />
   </ItemGroup>
   <Target Name="DeployToModDirectory" AfterTargets="Build">
+    <Message Importance="high" Text="DeployToModDirectory ..." />
     <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
       <Output TaskParameter="Assemblies" ItemName="Targets" />
     </GetAssemblyIdentity>
-    <PropertyGroup>
-      <DeployDir Condition="'$(DeployDir)'==''">$(LOCALAPPDATA)\Colossal Order\Cities_Skylines\Addons\Mods\$(ProjectName)\</DeployDir>
-      <Now>$([System.DateTime]::Now.ToString("HH:mm:ss"))</Now>
-      <pdb2mdb>$(PkgMono_Unofficial_pdb2mdb)\tools\pdb2mdb.exe</pdb2mdb>
-    </PropertyGroup>
     <ItemGroup>
       <AuxilaryFiles Include="$(TargetDir)Resources\*.png;$(TargetDir)CitiesHarmony.API.dll" />
       <VersionNumber Include="@(Targets->'%(Version)')" />
     </ItemGroup>
+    <PropertyGroup>
+      <DeployDir Condition="'$(DeployDir)'==''">$(LOCALAPPDATA)\Colossal Order\Cities_Skylines\Addons\Mods\$(ProjectName)\</DeployDir>
+      <Now>$([System.DateTime]::Now.ToString("HH:mm:ss"))</Now>
+      <pdb2mdb>$(PkgMono_Unofficial_pdb2mdb)\tools\pdb2mdb.exe</pdb2mdb>
+      <ZipFileName>$(ProjectName)-V@(VersionNumber)-$(GitCommit)-$(Configuration).zip</ZipFileName>
+      <ZipFile>$(DeployDir)\..\$(ZipFileName)</ZipFile>
+    </PropertyGroup>
+    <ItemGroup>
+      <OldZipFiles Include="$(DeployDir)\..\$(ProjectName)-*-$(Configuration).zip" />
+    </ItemGroup>
+    
     <Delete Files="$(TargetPath).mdb" />
     <Exec Command='"$(pdb2mdb)" "$(TargetPath)"' />
     <Copy SourceFiles="$(TargetPath).mdb" DestinationFolder="$(DeployDir)" />
@@ -91,5 +98,9 @@
     <Delete Files="$(DeployDir)$(TargetFileName)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DeployDir)" />
     <Message Importance="high" Text="AssemblyVersion=@(VersionNumber) time=$(Now)" />
+    <Delete Files="@(OldZipFiles)" />
+    <ZipDirectory Condition="'$(Configuration)'!='Workshop'"
+                  SourceDirectory="$(DeployDir)"
+                  DestinationFile="$(ZipFile)" />
   </Target>
 </Project>

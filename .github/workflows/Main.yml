@@ -11,9 +11,9 @@ jobs:
     runs-on: windows-latest
 
     env:
-        RepoName: ExperimentMod
+        ModName: ExperimentMod
         Solution_File: ExperimentMod.sln
-        DeployDir: /Deploy/Debug
+        DeployDir: $env:GITHUB_WORKSPACE/Deploy/Debug
         
     steps:
       - name: Get Sources
@@ -33,9 +33,11 @@ jobs:
           token: ${{ secrets.CSBINARIES_REPO_PAT }}
 
       - name: Build Solution
-        run: msbuild ${{ env.Solution_File }} /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir=${{ env.OutputDir }}
-        env:
-            OutputDir: "$env:GITHUB_WORKSPACE/${{ env.DeployDir }}"
+        id: build_solution
+        run: 
+            echo executing msbuild "${{ env.Solution_File }}" /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir="${{ env.DeployDir }}"
+            msbuild "${{ env.Solution_File }}" /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir="${{ env.DeployDir }}"
+
       - name: Get Version Number
         id: get_version_number
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
@@ -45,7 +47,7 @@ jobs:
         id: pack_assets
         run: |
           $ErrorView = 'NormalView'
-          $env:ASSET_FILE_NAME = "${{ env.RepoName }}-${{ steps.get_version_number.outputs.VERSION }}.zip"
+          $env:ASSET_FILE_NAME = "${{ env.ModName }}-${{ steps.get_version_number.outputs.VERSION }}.zip"
           $env:ASSET_FILE = "$env:DeployDir/$env:ASSET_FILE_NAME"
           echo "zipping $env:DeployDir/ to $env:ASSET_FILE ..."
           Compress-Archive -Path $env:DeployDir/** -DestinationPath $env:ASSET_FILE -CompressionLevel Optimal

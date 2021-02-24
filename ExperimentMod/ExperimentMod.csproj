@@ -100,8 +100,7 @@
     <Message Importance="high" Text="AssemblyVersion=@(VersionNumber) time=$(Now)" />
     <Delete Files="@(OldZipFiles)" />
     <ZipDirectory Condition="'$(Configuration)'!='Workshop'"
-                  SourceDirectory="$(DeployDir)"
-                  DestinationFile="$(ZipFile)" />
+                  SourceDirectory="$(DeployDir)" DestinationFile="$(ZipFile)" />
   </Target>
   <Target Name="CustomClean" BeforeTargets="CoreClean">
     <RemoveDir Directories="$(TargetDir)" />

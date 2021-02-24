@@ -103,13 +103,4 @@
                   SourceDirectory="$(DeployDir)"
                   DestinationFile="$(ZipFile)" />
   </Target>
-  <Target Name="CustomClean" BeforeTargets="Clean">
-    <Message Text="CustomClean ..." Importance="high" />
-    <PropertyGroup>
-      <DeployDir>$(LOCALAPPDATA)\Colossal Order\Cities_Skylines\Addons\Mods\$(ProjectName)\</DeployDir>
-    </PropertyGroup>
-    <RemoveDir Directories="$(TargetDir)" ContinueOnError="true"/>
-    <Message Text="removing deploy directory" Importance="high" />
-    <RemoveDir Directories="$(DeployDir)" ContinueOnError="true"/>
-  </Target>
 </Project>

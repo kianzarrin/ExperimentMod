@@ -35,8 +35,8 @@ jobs:
       - name: Build Solution
         id: build_solution
         run: 
-            echo executing msbuild "${{ env.Solution_File }}" /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir="${{ env.DeployDir }}"
-            msbuild "${{ env.Solution_File }}" /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir="${{ env.DeployDir }}"
+            echo executing msbuild "${{ env.Solution_File }}" /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir="$env:DeployDir"
+            msbuild "${{ env.Solution_File }}" /m /verbosity:normal /restore /p:Configuration=Debug /p:DeployDir="$env:DeployDir"
 
       - name: Get Version Number
         id: get_version_number

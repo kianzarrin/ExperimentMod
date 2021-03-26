@@ -99,8 +99,8 @@
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DeployDir)" />
     <Message Importance="high" Text="AssemblyVersion=@(VersionNumber) time=$(Now)" />
     <Delete Files="@(OldZipFiles)" />
-    <ZipDirectory Condition="'$(Configuration)'!='Workshop'"
-                  SourceDirectory="$(DeployDir)" DestinationFile="$(ZipFile)" />
+    <ZipDirectory SourceDirectory="$(DeployDir)" DestinationFile="$(ZipFile)" />
+
   </Target>
   <Target Name="CustomClean" BeforeTargets="CoreClean">
     <RemoveDir Directories="$(TargetDir)" />

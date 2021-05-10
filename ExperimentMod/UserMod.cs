@@ -18,7 +18,7 @@
         public void OnEnabled()
         {
             Log.Buffered = false;
-            Log.Debug("Experimenting mod disabled" + Environment.StackTrace);
+            Log.Debug("Experimenting mod enabled" + Environment.StackTrace);
         }
 
         [UsedImplicitly]

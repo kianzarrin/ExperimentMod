@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{f6feab9b-fe95-4b86-a1e3-b3833615b3c0}</ProjectGuid>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TargetFramework>net35</TargetFramework>
     <Deterministic>false</Deterministic>
-    <Copyright>Copyright ©  2020</Copyright>
     <Deterministic>false</Deterministic>
     <AssemblyVersion>1.0.0.*</AssemblyVersion>
-    <FileAlignment>512</FileAlignment>
     <LangVersion>latest</LangVersion>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
@@ -92,7 +90,7 @@
     </ItemGroup>
     
     <Delete Files="$(TargetPath).mdb" />
-    <Exec Command='"$(pdb2mdb)" "$(TargetPath)"' />
+    <Exec Command="&quot;$(pdb2mdb)&quot; &quot;$(TargetPath)&quot;" />
     <Copy SourceFiles="$(TargetPath).mdb" DestinationFolder="$(DeployDir)" />
     <Copy SourceFiles="@(AuxilaryFiles)" DestinationFolder="$(DeployDir)" />
     <Delete Files="$(DeployDir)$(TargetFileName)" />

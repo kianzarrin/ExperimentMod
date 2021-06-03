@@ -1,51 +1,66 @@
-﻿namespace ExperimentMod {
+﻿namespace ExperimentMod
+{
     using System;
-    using JetBrains.Annotations;
     using ICities;
-    using CitiesHarmony.API;
     using KianCommons;
-    using System.Diagnostics;
+    using System.Linq;
 
-    public class UserMod : IUserMod {
-        static UserMod() {
-            Log.Debug("ExperimentMod.UserMod static constructor called!" + Environment.StackTrace);
-        }
-
+    public class UserMod : IUserMod
+    {
         public static Version ModVersion => typeof(UserMod).Assembly.GetName().Version;
         public static string VersionString => ModVersion.ToString(2);
         public string Name => "Experiment Mod " + VersionString;
-        public string Description => "control Road/junction transitions";
-        const string HARMONY_ID = "Kian.ExperimentMod";
+        public string Description => "test GC";
+    }
 
-        [UsedImplicitly]
-        public void OnEnabled()
+    public class ThreadingExtension : ThreadingExtensionBase
+    {
+        public override void OnCreated(IThreading threading)
         {
-            Log.Buffered = false;
-            Log.VERBOSE = false;
+            Log.Buffered = true;
+            base.OnCreated(threading);
+            Log.Info("ThreadingExtension.OnCreated");
+        }
 
-            Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
-            
-            HarmonyHelper.DoOnHarmonyReady(() => HarmonyUtil.InstallHarmony(HARMONY_ID));
+        public override void OnUpdate(float realTimeDelta, float simulationTimeDelta)
+        {
+            CreateGarbage();
+        }
 
-            if (HelpersExtensions.InGame) {
-                for (ushort nodeID =1; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
-                    if(nodeID.ToNode().m_flags.CheckFlags(NetNode.Flags.Created | NetNode.Flags.Transition, NetNode.Flags.Deleted))
-                        NetManager.instance.UpdateNode(nodeID);
-                }
+        static int CreateGarbage()
+        {
+            try
+            {
+                long before = GC.GetTotalMemory(false);
+                var data = new Data[10];
+                int counter = data.Sum(item => item.Confuse());
+                long after = GC.GetTotalMemory(false);
+                Log.Debug($"allocated: {(after - before)/1024l}KB  ({after / 1024l} - {before / 1024l}) ");
+                return counter;
+            }
+            catch (Exception ex)
+            {
+                Log.Exception(ex);
+                return 0;
             }
         }
 
-        [UsedImplicitly]
-        public void OnDisabled()
+        public unsafe struct Data
         {
-            HarmonyUtil.UninstallHarmony(HARMONY_ID);
+            public fixed int x[1000];
+            public int Confuse()
+            {
+                try
+                {
+                    return x[10];
+                }
+                catch(Exception ex)
+                {
+                    Log.Exception(ex);
+                    return 0;
+                }
+            }
         }
-
-        //[UsedImplicitly]
-        //public void OnSettingsUI(UIHelperBase helper)
-        //{
-        //    GUI.Settings.OnSettingsUI(helper);
-        //}
 
     }
 }

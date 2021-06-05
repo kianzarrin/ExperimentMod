@@ -24,42 +24,22 @@
 
         public override void OnUpdate(float realTimeDelta, float simulationTimeDelta)
         {
-            CreateGarbage();
-        }
-
-        static int CreateGarbage()
-        {
             try
             {
-                long before = GC.GetTotalMemory(false);
-                var data = new Data[10];
-                int counter = data.Sum(item => item.Confuse());
-                long after = GC.GetTotalMemory(false);
-                Log.Debug($"allocated: {(after - before)/1024l}KB  ({after / 1024l} - {before / 1024l}) ");
-                return counter;
-            }
-            catch (Exception ex)
-            {
+                CreateGarbage();
+            } catch(Exception ex) {
                 Log.Exception(ex);
-                return 0;
             }
         }
 
-        public unsafe struct Data
+        static void CreateGarbage()
         {
-            public fixed int x[1000];
-            public int Confuse()
-            {
-                try
-                {
-                    return x[10];
-                }
-                catch(Exception ex)
-                {
-                    Log.Exception(ex);
-                    return 0;
-                }
-            }
+            long before = GC.GetTotalMemory(false);
+            int[] garbage;
+            for (int i = 0; i < 1000; ++i)
+                garbage = new int[100];
+            long after = GC.GetTotalMemory(false);
+            Log.Debug($"allocated: {(after - before)/1024l}KB  ({after / 1024l} - {before / 1024l}) ");
         }
 
     }

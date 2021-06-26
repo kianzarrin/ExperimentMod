@@ -1,13 +1,16 @@
-﻿namespace ExperimentMod {
+﻿namespace ExperimentMod
+{
     using System;
-    using JetBrains.Annotations;
-    using ICities;
-    using CitiesHarmony.API;
-    using KianCommons;
     using System.Diagnostics;
+    using CitiesHarmony.API;
+    using ICities;
+    using JetBrains.Annotations;
+    using KianCommons;
 
-    public class UserMod : IUserMod {
-        static UserMod() {
+    public class UserMod : IUserMod
+    {
+        static UserMod()
+        {
             Log.Debug("ExperimentMod.UserMod static constructor called!" + Environment.StackTrace);
         }
 
@@ -24,21 +27,26 @@
             Log.VERBOSE = false;
 
             Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
-            
+
             HarmonyHelper.DoOnHarmonyReady(() => HarmonyUtil.InstallHarmony(HARMONY_ID));
 
-            if (HelpersExtensions.InGame) {
-                for (ushort nodeID =1; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
-                    if(nodeID.ToNode().m_flags.CheckFlags(NetNode.Flags.Created | NetNode.Flags.Transition, NetNode.Flags.Deleted))
-                        NetManager.instance.UpdateNode(nodeID);
-                }
+            if (!Helpers.InStartupMenu)
+            {
+                MainPanel.Create();
+
             }
+
         }
 
         [UsedImplicitly]
         public void OnDisabled()
         {
             HarmonyUtil.UninstallHarmony(HARMONY_ID);
+            if (!Helpers.InStartupMenu)
+            {
+                MainPanel.Release();
+
+            }
         }
 
         //[UsedImplicitly]
@@ -46,6 +54,19 @@
         //{
         //    GUI.Settings.OnSettingsUI(helper);
         //}
+
+    }
+
+    public class LoadingExtension : LoadingExtensionBase
+    {
+        public override void OnLevelLoaded(LoadMode mode)
+        {
+            MainPanel.Create();
+        }
+        public override void OnLevelUnloading()
+        {
+            MainPanel.Release();
+        }
 
     }
 }

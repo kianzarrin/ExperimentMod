@@ -46,6 +46,17 @@
     <Compile Include="KianCommons\KianCommons\Math\VecetorUtils.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\HarmonyUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Patches\TranspilerUtils.cs" />
+    <Compile Include="KianCommons\KianCommons\Plugins\PluginUtil.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\Helpers\UIAutoSizePanel.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\Helpers\UIButtonExt.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\Helpers\UICheckboxDropDownExt.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\Helpers\UICheckBoxExt.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\Helpers\UIDropDownExt.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\Helpers\UISliderExt.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\TextureUtil.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\UIExtensions.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\UIKeymappingsPanel.cs" />
+    <Compile Include="KianCommons\KianCommons\UI\UIUtils.cs" />
     <Compile Include="KianCommons\KianCommons\Util\Assertion.cs" />
     <Compile Include="KianCommons\KianCommons\Util\EnumBitMaskExtensions.cs" />
     <Compile Include="KianCommons\KianCommons\Util\EnumerationExtensions.cs" />
@@ -92,7 +103,7 @@
     </ItemGroup>
     
     <Delete Files="$(TargetPath).mdb" />
-    <Exec Command='"$(pdb2mdb)" "$(TargetPath)"' />
+    <Exec Command="&quot;$(pdb2mdb)&quot; &quot;$(TargetPath)&quot;" />
     <Copy SourceFiles="$(TargetPath).mdb" DestinationFolder="$(DeployDir)" />
     <Copy SourceFiles="@(AuxilaryFiles)" DestinationFolder="$(DeployDir)" />
     <Delete Files="$(DeployDir)$(TargetFileName)" />

@@ -1,16 +1,13 @@
-﻿namespace ExperimentMod
-{
-    using System;
-    using System.Diagnostics;
+namespace ExperimentMod {
     using CitiesHarmony.API;
     using ICities;
     using JetBrains.Annotations;
     using KianCommons;
+    using System;
+    using System.Diagnostics;
 
-    public class UserMod : IUserMod
-    {
-        static UserMod()
-        {
+    public class UserMod : IUserMod {
+        static UserMod() {
             Log.Debug("ExperimentMod.UserMod static constructor called!" + Environment.StackTrace);
         }
 
@@ -21,8 +18,7 @@
         const string HARMONY_ID = "Kian.ExperimentMod";
 
         [UsedImplicitly]
-        public void OnEnabled()
-        {
+        public void OnEnabled() {
             Log.Buffered = false;
             Log.VERBOSE = false;
 
@@ -30,8 +26,7 @@
 
             HarmonyHelper.DoOnHarmonyReady(() => HarmonyUtil.InstallHarmony(HARMONY_ID));
 
-            if (!Helpers.InStartupMenu)
-            {
+            if (!Helpers.InStartupMenu) {
                 MainPanel.Create();
 
             }
@@ -39,11 +34,9 @@
         }
 
         [UsedImplicitly]
-        public void OnDisabled()
-        {
+        public void OnDisabled() {
             HarmonyUtil.UninstallHarmony(HARMONY_ID);
-            if (!Helpers.InStartupMenu)
-            {
+            if (!Helpers.InStartupMenu) {
                 MainPanel.Release();
 
             }
@@ -57,14 +50,11 @@
 
     }
 
-    public class LoadingExtension : LoadingExtensionBase
-    {
-        public override void OnLevelLoaded(LoadMode mode)
-        {
+    public class LoadingExtension : LoadingExtensionBase {
+        public override void OnLevelLoaded(LoadMode mode) {
             MainPanel.Create();
         }
-        public override void OnLevelUnloading()
-        {
+        public override void OnLevelUnloading() {
             MainPanel.Release();
         }
 

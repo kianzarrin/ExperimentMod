@@ -41,28 +41,9 @@
     <None Remove="KianCommons\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="KianCommons\KianCommons\Math\BezierUtil.cs" />
-    <Compile Include="KianCommons\KianCommons\Math\MathUtil.cs" />
-    <Compile Include="KianCommons\KianCommons\Math\VecetorUtils.cs" />
-    <Compile Include="KianCommons\KianCommons\Patches\HarmonyUtil.cs" />
-    <Compile Include="KianCommons\KianCommons\Patches\TranspilerUtils.cs" />
-    <Compile Include="KianCommons\KianCommons\Plugins\PluginUtil.cs" />
-    <Compile Include="KianCommons\KianCommons\UI\Helpers\UIAutoSizePanel.cs" />
-    <Compile Include="KianCommons\KianCommons\UI\Helpers\UIButtonExt.cs" />
-    <Compile Include="KianCommons\KianCommons\UI\Helpers\UICheckboxDropDownExt.cs" />
-    <Compile Include="KianCommons\KianCommons\UI\Helpers\UICheckBoxExt.cs" />
-    <Compile Include="KianCommons\KianCommons\UI\Helpers\UIDropDownExt.cs" />
-    <Compile Include="KianCommons\KianCommons\UI\Helpers\UISliderExt.cs" />
-    <Compile Include="KianCommons\KianCommons\UI\TextureUtil.cs" />
-    <Compile Include="KianCommons\KianCommons\UI\UIExtensions.cs" />
-    <Compile Include="KianCommons\KianCommons\UI\UIKeymappingsPanel.cs" />
-    <Compile Include="KianCommons\KianCommons\UI\UIUtils.cs" />
     <Compile Include="KianCommons\KianCommons\Util\Assertion.cs" />
-    <Compile Include="KianCommons\KianCommons\Util\EnumBitMaskExtensions.cs" />
     <Compile Include="KianCommons\KianCommons\Util\EnumerationExtensions.cs" />
-    <Compile Include="KianCommons\KianCommons\Util\HelpersExtensions.cs" />
     <Compile Include="KianCommons\KianCommons\Util\Log.cs" />
-    <Compile Include="KianCommons\KianCommons\Util\NetUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Util\ReflectionHelpers.cs" />
     <Compile Include="KianCommons\KianCommons\Util\StringExtensions.cs" />
     <Compile Include="KianCommons\KianCommons\Util\TypeUtil.cs" />

@@ -21,12 +21,12 @@ class Test {
 public class Foo {
     public int X1;
 
-    // public int X2; // drop
+    public int X2; // drop
 
-    // public int X3; // add
+    public int X3; // add
 
-    public static Foo Create() => new Foo { X1 = 1/*, X2 = 2 */};
-    public override string ToString() => $"Foo{{X1={X1}, }}";
+    //public static Foo Create() => new Foo { X1 = 1, X2 = 2 };
+    public override string ToString() => $"Foo{{X1={X1}, x2={X2}, x3={X3}}}";
     public void Prints() => Log.Debug(ToString());
 }
 

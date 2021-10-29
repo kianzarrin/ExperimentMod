@@ -11,9 +11,10 @@ namespace ExperimentMod {
         public string Description => "test serialization ";
 
         public void OnEnabled() {
+            Log.Called();
             try {
                 Test.Run();
-            }catch(Exception ex) { ex.Log(); }
+            } catch(Exception ex) { ex.Log(); }
             Process.GetCurrentProcess().Kill();
         }
 

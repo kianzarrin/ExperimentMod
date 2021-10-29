@@ -1,4 +1,4 @@
-﻿namespace ExperimentMod {
+namespace ExperimentMod {
     using System;
     using JetBrains.Annotations;
     using ICities;
@@ -20,7 +20,7 @@
         [UsedImplicitly]
         public void OnEnabled()
         {
-            Log.Buffered = false;
+            Log.Buffered = true;
             Log.VERBOSE = false;
 
             Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
@@ -35,6 +35,7 @@
         [UsedImplicitly]
         public void OnDisabled()
         {
+            Log.Buffered = false;
             HarmonyUtil.UninstallHarmony(HARMONY_ID);
         }
 

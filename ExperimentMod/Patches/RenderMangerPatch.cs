@@ -23,14 +23,16 @@ namespace ExperimentMod.Patches {
         }
 
         public static Dictionary<IRenderableManager, Stopwatch> timer_dict_;
-        public static void Prepare() => timer_dict_ = new Dictionary<IRenderableManager, Stopwatch>(20);
         static Stopwatch GetOrCreateTimer(IRenderableManager man) {
             try {
-                timer_dict_ ??= new Dictionary<IRenderableManager, Stopwatch>(20);
+                timer_dict_ ??= new Dictionary<IRenderableManager, Stopwatch>();
                 if(timer_dict_.TryGetValue(man, out var ret))
                     return ret;
-                return timer_dict_[man] = new Stopwatch();
+                ret = new Stopwatch();
+                timer_dict_.Add(man, ret);
+                return ret;
             }catch(Exception ex) { ex.Log(false); }
+            return new Stopwatch();
         } 
 
         public static void EndRenderingWrapper(IRenderableManager man, RenderManager.CameraInfo cameraInfo) {

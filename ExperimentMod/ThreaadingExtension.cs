@@ -10,6 +10,11 @@ namespace ExperimentMod {
         public override void OnUpdate(float realTimeDelta, float simulationTimeDelta) {
             if(timer.ElapsedMilliseconds > 1000) {
                 var dict = RenderMangerPatch.timer_dict_;
+                Log.Info("manager times are:");
+                if(dict == null) {
+                    Log.Info("timer_dict_ is null");
+                    return;
+                }
                 var total = dict.Values.Sum(t => t.ElapsedMilliseconds);
                 foreach(var pair in dict) {
                     float percent = (100f * pair.Value.ElapsedMilliseconds) / total;

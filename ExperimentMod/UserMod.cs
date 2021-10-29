@@ -27,11 +27,8 @@
             
             HarmonyHelper.DoOnHarmonyReady(() => HarmonyUtil.InstallHarmony(HARMONY_ID));
 
-            if (HelpersExtensions.InGame) {
-                for (ushort nodeID =1; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
-                    if(nodeID.ToNode().m_flags.CheckFlags(NetNode.Flags.Created | NetNode.Flags.Transition, NetNode.Flags.Deleted))
-                        NetManager.instance.UpdateNode(nodeID);
-                }
+            if (!Helpers.InStartupMenu) {
+                // hot reload
             }
         }
 

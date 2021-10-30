@@ -1,4 +1,4 @@
-namespace ExperimentMod.Patches.RenderManger {
+namespace ExperimentMod.Patches.RenderManager_ {
     using HarmonyLib;
     using System.Diagnostics;
 
@@ -9,7 +9,7 @@ namespace ExperimentMod.Patches.RenderManger {
         static void Finalizer() => Timer.Stop();
     }
 
-    [HarmonyPatch(typeof(RenderManager), "RenderOverlay")]
+    [HarmonyPatch(typeof(RenderManager), "Managers_RenderOverlay")]
     public static class RenderOverlayPatch {
         public static Stopwatch Timer = new Stopwatch();
         static void Prefix() => Timer.Start();

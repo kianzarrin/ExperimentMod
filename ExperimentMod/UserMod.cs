@@ -24,8 +24,8 @@ namespace ExperimentMod {
             Log.VERBOSE = false;
 
             Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
-            
-            HarmonyHelper.DoOnHarmonyReady(() => HarmonyUtil.InstallHarmony(HARMONY_ID));
+
+            HarmonyHelper.DoOnHarmonyReady(() => HarmonyUtil.InstallHarmony(HARMONY_ID, null));
 
             if (!Helpers.InStartupMenu) {
                 // hot reload

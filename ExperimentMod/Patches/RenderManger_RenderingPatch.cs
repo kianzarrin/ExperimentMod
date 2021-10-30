@@ -11,14 +11,14 @@ namespace ExperimentMod.Patches {
 
     [HarmonyPatch(typeof(RenderManager), "FpsBoosterLateUpdate")]
     public static class TimeEndRenderingPatch {
-        static MethodInfo mEndRenderingWrapper = typeof(TimeEndRenderingPatch).GetMethod("EndRenderingWrapper", true);
+        static MethodInfo mWrapper = typeof(TimeEndRenderingPatch).GetMethod("Wrapper", true);
         static MethodInfo mEndRendering = typeof(IRenderableManager).GetMethod("EndRendering", true);
 
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase origin) {
             foreach(var code in instructions) {
                 if(code.Calls(mEndRendering)) {
-                    Log.Debug("replacing" + code);
-                    yield return new CodeInstruction(OpCodes.Call, mEndRenderingWrapper);
+                    Log.Debug($"replacing {code.operand} with {mWrapper}");
+                    yield return new CodeInstruction(OpCodes.Call, mWrapper);
                 } else {
                     yield return code;
                 }
@@ -38,7 +38,7 @@ namespace ExperimentMod.Patches {
             }
         } 
 
-        public static void EndRenderingWrapper(IRenderableManager man, RenderManager.CameraInfo cameraInfo) {
+        public static void Wrapper(IRenderableManager man, RenderManager.CameraInfo cameraInfo) {
             var timer = GetOrCreateTimer(man);
             timer.Start();
             try {
@@ -57,7 +57,7 @@ namespace ExperimentMod.Patches {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase origin) {
             foreach(var code in instructions) {
                 if(code.Calls(mBeginRendering)) {
-                    Log.Debug("replacing" + code);
+                    Log.Debug($"replacing {code.operand} with {mWrapper}");
                     yield return new CodeInstruction(OpCodes.Call, mWrapper);
                 } else {
                     yield return code;
@@ -82,7 +82,7 @@ namespace ExperimentMod.Patches {
             var timer = GetOrCreateTimer(man);
             timer.Start();
             try {
-                man.EndRendering(cameraInfo);
+                man.BeginRendering(cameraInfo);
             } finally {
                 timer.Stop();
             }

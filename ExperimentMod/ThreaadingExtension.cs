@@ -11,27 +11,34 @@ namespace ExperimentMod {
         public override void OnUpdate(float realTimeDelta, float simulationTimeDelta) {
             try {
                 if(timer.ElapsedMilliseconds > 1000) {
-                    timer.Reset();
-                    timer.Start();
-
-                    var hashtable = RenderMangerPatch.Timers;
-                    Log.Info("manager times are:");
-                    if(hashtable == null) {
-                        Log.Info("hashtable is null");
+                    var dict = RenderMangerPatch.Timers;
+                    if(dict == null) {
+                        Log.Info("Timers == null");
                         return;
                     }
-                    var total = hashtable.Values.Cast<Stopwatch>().Sum(t => t.ElapsedMilliseconds);
-                    foreach(IRenderableManager man in hashtable.Keys) {
-                        var timer = hashtable[man] as Stopwatch;
-                        float percent = (100f * timer.ElapsedMilliseconds) / total;
-                        Log.Info($"{man} : %{Mathf.RoundToInt(percent)}");
+
+                    var entries = dict.OrderBy(pair => pair.Value.ElapsedMilliseconds);
+                    var total = dict.Values.Cast<Stopwatch>().Sum(t => t.ElapsedMilliseconds);
+                    float percentLane = (100f * Netlane_RenderPatch.Timer.ElapsedMilliseconds) / total;
+                    Log.Info($"\n%{total*(100f/1000f)} of time spent in EndRendering");
+                    Log.Info($"NetLane.RenderInstance/total.EndRendering = {Mathf.RoundToInt(percentLane)}");
+                    Log.Info($"percentages of maneger.Endering/total.EndRendering:");
+                    foreach(var pair in entries) {
+                        float percent = (100f * pair.Value.ElapsedMilliseconds) / total;
+                        Log.Info($"{pair.Key} : %{Mathf.RoundToInt(percent)}");
                     }
-                    foreach(Stopwatch timer in hashtable.Values)
+
+                    // reset timers
+                    timer.Reset();
+                    timer.Start();
+                    Netlane_RenderPatch.Timer.Reset();
+                    foreach(Stopwatch timer in dict.Values)
                         timer.Reset();
                 }
             } catch(Exception ex) {
                 ex.Log(false);
             }
         }
+
     }
 }

@@ -25,11 +25,14 @@ namespace ExperimentMod.Patches {
             }
         }
 
-        public static Hashtable Timers;
+        public static Dictionary<IRenderableManager, Stopwatch> Timers;
         static Stopwatch GetOrCreateTimer(IRenderableManager man) {
             try {
-                Timers ??= new Hashtable(100);
-                return (Timers[man] ??= new Stopwatch()) as Stopwatch;
+                Timers ??= new Dictionary<IRenderableManager, Stopwatch>();
+                if(!Timers.TryGetValue(man, out var ret)) {
+                    ret = Timers[man] = new Stopwatch();
+                }
+                return ret;
             } catch(Exception ex) {
                 ex.Log(false);
                 return new Stopwatch();

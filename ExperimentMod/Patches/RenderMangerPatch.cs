@@ -25,10 +25,9 @@ namespace ExperimentMod.Patches {
             }
         }
 
-        public static Dictionary<IRenderableManager, Stopwatch> Timers;
+        public static Dictionary<IRenderableManager, Stopwatch> Timers = new Dictionary<IRenderableManager, Stopwatch>();
         static Stopwatch GetOrCreateTimer(IRenderableManager man) {
             try {
-                Timers ??= new Dictionary<IRenderableManager, Stopwatch>();
                 if(!Timers.TryGetValue(man, out var ret)) {
                     ret = Timers[man] = new Stopwatch();
                 }

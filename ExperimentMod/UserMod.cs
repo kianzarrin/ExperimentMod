@@ -20,7 +20,7 @@ namespace ExperimentMod {
         [UsedImplicitly]
         public void OnEnabled()
         {
-            Log.Buffered = true;
+            Log.Buffered = false;
             Log.VERBOSE = false;
 
             Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);

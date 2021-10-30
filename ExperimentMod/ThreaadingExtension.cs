@@ -11,7 +11,7 @@ namespace ExperimentMod {
         public override void OnUpdate(float realTimeDelta, float simulationTimeDelta) {
             try {
                 if(timer_.ElapsedMilliseconds > 1000) {
-                    var dict = RenderMangerPatch.Timers;
+                    var dict = TimeEndRenderingPatch.Timers;
 
                     var entries = dict.OrderByDescending(pair => pair.Value.ElapsedMilliseconds);
                     var total = dict.Values.Sum(t => t.ElapsedMilliseconds);

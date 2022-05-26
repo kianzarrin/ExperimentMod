@@ -4,6 +4,8 @@ namespace ExperimentMod {
 
     public class VehicleDebugger : PathDebugger {
         public static VehicleDebugger Instance;
+        protected override bool showFrame => true; 
+
         protected override void SimulationFrame(ushort id) {
             ref var vehicle = ref id.ToVehicle();
             TargetLookPosFrames[vehicle.m_lastFrame] = vehicle.m_targetPos3;
@@ -47,16 +49,9 @@ namespace ExperimentMod {
         }
 
         protected override uint GetTargetFrame() {
-            uint i = (uint)(((int)GetID() << 4) / 65536);
-            return SimulationManager.instance.m_referenceFrameIndex - i;
-        }
-
-        protected override Vector3 GetSmoothLookPos() {
-            uint targetFrame = GetTargetFrame();
-            Vector4 pos1 = GetTargetPosFrame(targetFrame - 32U);
-            Vector4 pos2 = GetTargetPosFrame(targetFrame - 16U);
-            float t = ((targetFrame & 15U) + SimulationManager.instance.m_referenceTimer) * 0.0625f;
-            return Vector3.Lerp(pos1, pos2, t);
+            ushort id = GetID();
+            ref Vehicle vehicle = ref id.ToVehicle();
+            return vehicle.GetTargetFrame(vehicle.Info, id);
         }
 
         protected override void GetSmoothPosition(out Vector3 pos, out Quaternion rot) {

@@ -10,17 +10,28 @@ namespace ExperimentMod {
             var pos = human.m_targetPos;
             TargetPosHistory[human.m_lastFrame] = pos;
 
-            uint frame0 = human.m_lastFrame == 0 ? 3u : human.m_lastFrame - 1u;
-            var pos0 = TargetPosHistory[frame0];
-            var distance2 = (pos - pos0).sqrMagnitude;
+            static uint Dec(uint b) => b == 0 ? 3u : b - 1u;
+            uint frame1 = Dec(human.m_lastFrame);
+            uint frame2 = Dec(frame1);
+            uint frame3 = Dec(frame2);
+            var pos1 = TargetPosHistory[frame1];
+            var pos2 = TargetPosHistory[frame2];
+            var pos3 = TargetPosHistory[frame3];
+
             const float minDistance = .1f;
-            if (distance2 < minDistance * minDistance) {
-                TargetLookPosFrames[human.m_lastFrame] = pos;
+            static bool IsGoodDistance(Vector3 v1, Vector3 v2) => (v1 - v2).sqrMagnitude > minDistance * minDistance;
+
+            // smooth out.
+            if (IsGoodDistance(pos, pos1)) {
+                TargetLookPosFrames[human.m_lastFrame] = pos1;
+            } else if (IsGoodDistance(pos, pos2)) {
+                TargetLookPosFrames[human.m_lastFrame] = Vector3.LerpUnclamped(pos2, pos, .5f);
+            } else if(IsGoodDistance(pos, pos3)) {
+                TargetLookPosFrames[human.m_lastFrame] = Vector3.LerpUnclamped(pos3, pos, .75f);
             } else {
-                TargetLookPosFrames[human.m_lastFrame] = Vector3.LerpUnclamped(pos0,pos,0.5f);
+                TargetLookPosFrames[human.m_lastFrame] = pos;
             }
 
-            TargetLookPosFrames[human.m_lastFrame] = human.m_targetPos;
         }
 
 
@@ -49,14 +60,6 @@ namespace ExperimentMod {
         protected override uint GetTargetFrame() {
             uint i = (uint)(((int)GetID() << 4) / 65536);
             return SimulationManager.instance.m_referenceFrameIndex - i;
-        }
-
-        protected override Vector3 GetSmoothLookPos() {
-            uint targetFrame = GetTargetFrame();
-            Vector4 pos1 = GetTargetPosFrame(targetFrame - 32U);
-            Vector4 pos2 = GetTargetPosFrame(targetFrame - 16U);
-            float t = ((targetFrame & 15U) + SimulationManager.instance.m_referenceTimer) * 0.0625f;
-            return Vector3.Lerp(pos1, pos2, t);
         }
 
         protected override void GetSmoothPosition(out Vector3 pos, out Quaternion rot) {

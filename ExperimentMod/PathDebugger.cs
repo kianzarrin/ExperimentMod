@@ -22,9 +22,9 @@ namespace ExperimentMod {
         protected const float alpha = .75f;
         protected const bool renderLimits = true;
         protected const bool alphaBlend = true;
-        protected const bool showFrame = true;
-        protected const bool showTarget = true;
         protected static Vector4[] TargetLookPosFrames = new Vector4[4];
+        protected virtual bool showFrame => false;
+        protected virtual bool showTarget => true;
 
         public static void RenderOverlayALL(RenderManager.CameraInfo cameraInfo) {
             try {
@@ -47,6 +47,7 @@ namespace ExperimentMod {
             Log.Called(GetType());
         }
         protected virtual void LateUpdate() { }
+
         protected virtual void RenderOverlay(RenderManager.CameraInfo cameraInfo) {
             if (GetID(out ushort id)) {
                 if (showTarget) {
@@ -58,11 +59,11 @@ namespace ExperimentMod {
                         float r = hw * (.25f + .25f * i);
                         RenderCircle(cameraInfo, GetTargetPosFrame(targetF), colorT, r);
                     }
-
                     GetSmoothPosition(out var pos0, out var rot0);
                     var lookPos = GetSmoothLookPos();
                     var lookdir = lookPos - pos0;
-                    if (lookdir.sqrMagnitude > 1) {
+                    const float minDistance = .3f;
+                    if (lookdir.sqrMagnitude > minDistance * minDistance) {
                         RenderArrow(cameraInfo, pos0, lookdir, Color.red);
                     } else {
                         lookdir = rot0 * Vector3.forward;
@@ -81,12 +82,13 @@ namespace ExperimentMod {
                 SimulationFrame(id);
             }
         }
+
         protected abstract void SimulationFrame(ushort id);
         protected abstract uint GetTargetFrame();
         protected virtual Vector3 GetSmoothLookPos() {
             uint targetFrame = GetTargetFrame();
-            Vector4 pos1 = GetTargetPosFrame(targetFrame - 32U);
-            Vector4 pos2 = GetTargetPosFrame(targetFrame - 16U);
+            Vector4 pos1 = GetTargetPosFrame(targetFrame - 16U);
+            Vector4 pos2 = GetTargetPosFrame(targetFrame - 0);
             float t = ((targetFrame & 15U) + SimulationManager.instance.m_referenceTimer) * 0.0625f;
             return Vector3.Lerp(pos1, pos2, t);
         }

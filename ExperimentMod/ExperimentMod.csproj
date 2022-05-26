@@ -61,6 +61,7 @@
     <Compile Include="KianCommons\KianCommons\Util\SingletonStrong.cs" />
     <Compile Include="KianCommons\KianCommons\Util\StringExtensions.cs" />
     <Compile Include="KianCommons\KianCommons\Util\TypeUtil.cs" />
+    <Compile Include="KianCommons\KianCommons\Util\UnityUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="2.0.0" />

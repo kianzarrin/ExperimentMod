@@ -1,20 +1,17 @@
-﻿namespace ExperimentMod {
+namespace ExperimentMod {
     using System;
     using JetBrains.Annotations;
     using ICities;
     using CitiesHarmony.API;
     using KianCommons;
     using System.Diagnostics;
+    using UnityEngine;
 
-    public class UserMod : IUserMod {
-        static UserMod() {
-            Log.Debug("ExperimentMod.UserMod static constructor called!" + Environment.StackTrace);
-        }
-
+    public class UserMod : LoadingExtensionBase, IUserMod {
         public static Version ModVersion => typeof(UserMod).Assembly.GetName().Version;
         public static string VersionString => ModVersion.ToString(2);
         public string Name => "Experiment Mod " + VersionString;
-        public string Description => "control Road/junction transitions";
+        public string Description => "human/vehicle path debugger";
         const string HARMONY_ID = "Kian.ExperimentMod";
 
         [UsedImplicitly]
@@ -28,24 +25,37 @@
             HarmonyHelper.DoOnHarmonyReady(() => HarmonyUtil.InstallHarmony(HARMONY_ID));
 
             if (HelpersExtensions.InGame) {
-                for (ushort nodeID =1; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
-                    if(nodeID.ToNode().m_flags.CheckFlags(NetNode.Flags.Created | NetNode.Flags.Transition, NetNode.Flags.Deleted))
-                        NetManager.instance.UpdateNode(nodeID);
-                }
+                Install();
             }
         }
 
         [UsedImplicitly]
         public void OnDisabled()
         {
+            if (HelpersExtensions.InGame) {
+                UnInstall();
+            }
             HarmonyUtil.UninstallHarmony(HARMONY_ID);
         }
 
-        //[UsedImplicitly]
-        //public void OnSettingsUI(UIHelperBase helper)
-        //{
-        //    GUI.Settings.OnSettingsUI(helper);
-        //}
+        public override void OnLevelLoaded(LoadMode mode) {
+            Install();
+        }
+        public override void OnLevelUnloading() {
+            UnInstall();
+        }
+
+        public static void Install() {
+            Log.Called();
+            UnityUtil.CreateComponent<HumanDebugger>(false);
+            UnityUtil.CreateComponent<VehicleDebugger>(false);
+        }
+
+        public static void UnInstall() {
+            Log.Called();
+            GameObject.Destroy(HumanDebugger.Instance?.gameObject);
+            GameObject.Destroy(VehicleDebugger.Instance?.gameObject);
+        }
 
     }
 }

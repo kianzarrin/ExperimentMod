@@ -6,7 +6,7 @@ namespace ExperimentMod {
         public static VehicleDebugger Instance;
         protected override void SimulationFrame(ushort id) {
             ref var vehicle = ref id.ToVehicle();
-            TargetPosFrames[vehicle.m_lastFrame] = vehicle.m_targetPos3;
+            TargetLookPosFrames[vehicle.m_lastFrame] = vehicle.m_targetPos3;
         }
 
         protected override void RenderOverlay(RenderManager.CameraInfo cameraInfo, ushort id) {

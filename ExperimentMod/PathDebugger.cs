@@ -1,5 +1,7 @@
 namespace ExperimentMod {
     using ColossalFramework.Math;
+    using KianCommons;
+    using System;
     using UnityEngine;
 
     public static class Extensions {
@@ -22,27 +24,38 @@ namespace ExperimentMod {
         protected const bool alphaBlend = true;
         protected const bool showFrame = true;
         protected const bool showTarget = true;
-        protected static Vector4[] TargetPosFrames = new Vector4[4];
+        protected static Vector4[] TargetLookPosFrames = new Vector4[4];
 
         public static void RenderOverlayALL(RenderManager.CameraInfo cameraInfo) {
-            HumanDebugger.Instance.RenderOverlay(cameraInfo);
+            try {
+                HumanDebugger.Instance.RenderOverlay(cameraInfo);
+                VehicleDebugger.Instance.RenderOverlay(cameraInfo);
+            } catch (Exception ex) { ex.Log(false); }
+
         }
         public static void SimulationFrameALL() {
-            HumanDebugger.Instance.SimulationFrame();
+            try {
+                HumanDebugger.Instance.SimulationFrame();
+                VehicleDebugger.Instance.SimulationFrame();
+            } catch (Exception ex) { ex.Log(false); }
         }
 
-        protected virtual void Awake() { }
-        protected virtual void Destroy() { }
+        protected virtual void Awake() {
+            Log.Called(GetType());
+        }
+        protected virtual void Destroy() {
+            Log.Called(GetType());
+        }
         protected virtual void LateUpdate() { }
         protected virtual void RenderOverlay(RenderManager.CameraInfo cameraInfo) {
             if (GetID(out ushort id)) {
-                uint targetFrame = GetTargetFrame();
                 if (showTarget) {
+                    uint targetFrame = GetTargetFrame();
                     for (int i = 0; i < 4; i++) {
-                        // target position
                         uint targetF = (uint)(targetFrame - (16 * i));
-                        Color colorT = new Color32(0, (byte)(100 + 50 * i), (byte)(50 * i), 255);
-                        float r = 1.5f * (1 - .25f * i);
+                        Color colorT = new Color32(255, (byte)(50 + 50 * i), (byte)(50 * i), 255);
+                        float hw = 1.5f;
+                        float r = hw * (.25f + .25f * i);
                         RenderCircle(cameraInfo, GetTargetPosFrame(targetF), colorT, r);
                     }
 
@@ -58,8 +71,9 @@ namespace ExperimentMod {
                 }
                 RenderOverlay(cameraInfo, id);
             }
-
         }
+
+
         protected abstract void RenderOverlay(RenderManager.CameraInfo cameraInfo, ushort id);
 
         protected void SimulationFrame() {
@@ -87,7 +101,7 @@ namespace ExperimentMod {
 
         protected Vector4 GetTargetPosFrame(uint simulationFrame) {
             uint index = simulationFrame >> 4 & 3U;
-            return TargetPosFrames[index];
+            return TargetLookPosFrames[index];
         }
 
         protected void RenderArrow(RenderManager.CameraInfo cameraInfo, Vector3 pos, Vector3 dir, Color color, float size = 0.1f) {

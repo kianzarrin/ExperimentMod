@@ -3,10 +3,27 @@ namespace ExperimentMod {
 
     public class HumanDebugger : PathDebugger {
         public static HumanDebugger Instance;
+
+        Vector4[] TargetPosHistory = new Vector4[4];
         protected override void SimulationFrame(ushort id) {
             ref var human = ref id.ToCitizenInstance();
-            TargetPosFrames[human.m_lastFrame] = human.m_targetPos;
+            var pos = human.m_targetPos;
+            TargetPosHistory[human.m_lastFrame] = pos;
+
+            uint frame0 = human.m_lastFrame == 0 ? 3u : human.m_lastFrame - 1u;
+            var pos0 = TargetPosHistory[frame0];
+            var distance2 = (pos - pos0).sqrMagnitude;
+            const float minDistance = .1f;
+            if (distance2 < minDistance * minDistance) {
+                TargetLookPosFrames[human.m_lastFrame] = pos;
+            } else {
+                TargetLookPosFrames[human.m_lastFrame] = Vector3.LerpUnclamped(pos0,pos,0.5f);
+            }
+
+            TargetLookPosFrames[human.m_lastFrame] = human.m_targetPos;
         }
+
+
 
         protected override void RenderOverlay(RenderManager.CameraInfo cameraInfo, ushort id) {
             ref var human = ref id.ToCitizenInstance();

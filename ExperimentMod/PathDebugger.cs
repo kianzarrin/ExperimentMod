@@ -27,8 +27,8 @@ namespace ExperimentMod {
         public static void RenderOverlayALL(RenderManager.CameraInfo cameraInfo) {
             HumanDebugger.Instance.RenderOverlay(cameraInfo);
         }
-        public static void SimulationStepALL() {
-            HumanDebugger.Instance.SimulationStep();
+        public static void SimulationFrameALL() {
+            HumanDebugger.Instance.SimulationFrame();
         }
 
         protected virtual void Awake() { }
@@ -62,12 +62,12 @@ namespace ExperimentMod {
         }
         protected abstract void RenderOverlay(RenderManager.CameraInfo cameraInfo, ushort id);
 
-        protected void SimulationStep() {
+        protected void SimulationFrame() {
             if (GetID(out ushort id)) {
-                SimulationStep(id);
+                SimulationFrame(id);
             }
         }
-        protected abstract void SimulationStep(ushort id);
+        protected abstract void SimulationFrame(ushort id);
         protected abstract uint GetTargetFrame();
         protected virtual Vector3 GetSmoothLookPos() {
             uint targetFrame = GetTargetFrame();

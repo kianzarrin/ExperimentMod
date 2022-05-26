@@ -3,7 +3,7 @@ namespace ExperimentMod {
 
     public class HumanDebugger : PathDebugger {
         public static HumanDebugger Instance;
-        protected override void SimulationStep(ushort id) {
+        protected override void SimulationFrame(ushort id) {
             ref var human = ref id.ToCitizenInstance();
             TargetPosFrames[human.m_lastFrame] = human.m_targetPos;
         }

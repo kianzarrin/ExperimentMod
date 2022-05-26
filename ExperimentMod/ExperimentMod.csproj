@@ -58,7 +58,9 @@
     <Compile Include="KianCommons\KianCommons\Util\Log.cs" />
     <Compile Include="KianCommons\KianCommons\Util\NetUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Util\ReflectionHelpers.cs" />
+    <Compile Include="KianCommons\KianCommons\Util\SingletonStrong.cs" />
     <Compile Include="KianCommons\KianCommons\Util\StringExtensions.cs" />
+    <Compile Include="KianCommons\KianCommons\Util\TypeUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CitiesHarmony.API" Version="2.0.0" />

@@ -41,6 +41,11 @@
     <None Remove="KianCommons\**" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="editorconfig" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="KianCommons\KianCommons\IImplict\IMod.cs" />
+    <Compile Include="KianCommons\KianCommons\IImplict\IMonoBehaviour.cs" />
     <Compile Include="KianCommons\KianCommons\Math\BezierUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Math\MathUtil.cs" />
     <Compile Include="KianCommons\KianCommons\Math\VecetorUtils.cs" />
@@ -92,7 +97,7 @@
     </ItemGroup>
     
     <Delete Files="$(TargetPath).mdb" />
-    <Exec Command='"$(pdb2mdb)" "$(TargetPath)"' />
+    <Exec Command="&quot;$(pdb2mdb)&quot; &quot;$(TargetPath)&quot;" />
     <Copy SourceFiles="$(TargetPath).mdb" DestinationFolder="$(DeployDir)" />
     <Copy SourceFiles="@(AuxilaryFiles)" DestinationFolder="$(DeployDir)" />
     <Delete Files="$(DeployDir)$(TargetFileName)" />

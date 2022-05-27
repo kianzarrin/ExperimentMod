@@ -24,7 +24,7 @@ namespace ExperimentMod {
         protected const bool alphaBlend = true;
         protected static Vector4[] TargetLookPosFrames = new Vector4[4];
         protected virtual bool showFrame => ModSettings.ShowFrames;
-        protected virtual bool showTargets => ModSettings.ShowLookTarget;
+        protected virtual bool showTargets => ModSettings.ShowTargetPos;
         protected virtual bool showLookTargets => ModSettings.ShowLookTarget;
 
         public static void RenderOverlayALL(RenderManager.CameraInfo cameraInfo) {

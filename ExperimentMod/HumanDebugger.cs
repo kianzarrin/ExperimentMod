@@ -45,6 +45,9 @@ namespace ExperimentMod {
                     RenderFrame(cameraInfo, human.GetFrameData(targetF), new Color(0, 0.25f * (4 - i), 0.1f));
                 }
             }
+            if (showTargets) {
+                RenderCircle(cameraInfo, human.m_targetPos, new Color(0, 1, 0.1f), 1);
+            }
         }
 
         void RenderFrame(RenderManager.CameraInfo cameraInfo, CitizenInstance.Frame frame, Color color) {

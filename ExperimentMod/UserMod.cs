@@ -6,8 +6,9 @@ namespace ExperimentMod {
     using KianCommons;
     using System.Diagnostics;
     using UnityEngine;
+    using KianCommons.IImplict;
 
-    public class UserMod : LoadingExtensionBase, IUserMod {
+    public class UserMod : LoadingExtensionBase, IUserMod , IModWithSettings {
         public static Version ModVersion => typeof(UserMod).Assembly.GetName().Version;
         public static string VersionString => ModVersion.ToString(2);
         public string Name => "Experiment Mod " + VersionString;
@@ -57,5 +58,7 @@ namespace ExperimentMod {
             GameObject.Destroy(VehicleDebugger.Instance?.gameObject);
         }
 
+
+        public void OnSettingsUI(UIHelper helper) => ModSettings.OnSettingsUI(helper);
     }
 }

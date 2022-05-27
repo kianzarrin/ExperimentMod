@@ -23,11 +23,13 @@ namespace ExperimentMod {
         protected const bool renderLimits = true;
         protected const bool alphaBlend = true;
         protected static Vector4[] TargetLookPosFrames = new Vector4[4];
-        protected virtual bool showFrame => false;
-        protected virtual bool showTarget => true;
+        protected virtual bool showFrame => ModSettings.ShowFrames;
+        protected virtual bool showTargets => ModSettings.ShowLookTarget;
+        protected virtual bool showLookTargets => ModSettings.ShowLookTarget;
 
         public static void RenderOverlayALL(RenderManager.CameraInfo cameraInfo) {
             try {
+                if (!ModSettings.RenderOverlay) return;
                 HumanDebugger.Instance.RenderOverlay(cameraInfo);
                 VehicleDebugger.Instance.RenderOverlay(cameraInfo);
             } catch (Exception ex) { ex.Log(false); }
@@ -50,7 +52,7 @@ namespace ExperimentMod {
 
         protected virtual void RenderOverlay(RenderManager.CameraInfo cameraInfo) {
             if (GetID(out ushort id)) {
-                if (showTarget) {
+                if (showLookTargets) {
                     uint targetFrame = GetTargetFrame();
                     for (int i = 0; i < 4; i++) {
                         uint targetF = (uint)(targetFrame - (16 * i));
@@ -59,6 +61,8 @@ namespace ExperimentMod {
                         float r = hw * (.25f + .25f * i);
                         RenderCircle(cameraInfo, GetTargetPosFrame(targetF), colorT, r);
                     }
+                }
+                {
                     GetSmoothPosition(out var pos0, out var rot0);
                     var lookPos = GetSmoothLookPos();
                     var lookdir = lookPos - pos0;

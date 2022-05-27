@@ -4,7 +4,10 @@ namespace ExperimentMod {
 
     public class VehicleDebugger : PathDebugger {
         public static VehicleDebugger Instance;
-        protected override bool showFrame => true; 
+        protected override bool showFrame => true;
+        protected override bool showTarget => false;
+        bool showTargetPos = true;
+
 
         protected override void SimulationFrame(ushort id) {
             ref var vehicle = ref id.ToVehicle();
@@ -20,6 +23,15 @@ namespace ExperimentMod {
                     RenderFrame(cameraInfo, vehicle.GetFrameData(targetF), new Color(0, 0.25f * (4 - i), 0.1f));
                 }
             }
+            if (showTargetPos) {
+                for (int i = 0; i < 4; ++i) {
+                    Color colorT = new Color32(255, (byte)(50 + 50 * i), (byte)(50 * i), 255);
+                    float hw = 1.5f;
+                    float r = hw * (.25f + .25f * i);
+                    RenderCircle(cameraInfo, vehicle.GetTargetPos(i), colorT, r);
+                }
+            }
+
         }
 
         void RenderFrame(RenderManager.CameraInfo cameraInfo, Vehicle.Frame frame, Color color, float xscale = 1) {

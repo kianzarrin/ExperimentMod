@@ -26,6 +26,7 @@ namespace ExperimentMod {
         public static SavedInt TargetPos = new SavedInt("TargetPos", FileName, 3);
         static UISlider Slider;
         public static void OnSettingsUI(UIHelper helper) {
+            helper.AddSavedToggle("Render Overlay", RenderOverlay);
             helper.AddSavedToggle("render look targets overlay", ShowLookTarget);
             helper.AddSavedToggle("render target position[s] overlay", ShowTargetPos);
             helper.AddSavedToggle("render frames overlay", ShowFrames);

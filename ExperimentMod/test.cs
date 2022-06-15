@@ -34,7 +34,6 @@ public class Foo {
 
     public int X3; // add
 
-    //public static Foo Create() => new Foo { X1 = 1, X2 = 2 };
     public override string ToString() => $"Foo{{X1={X1}, x2={X2}, x3={X3}}}";
     public void Prints() => Log.Debug(ToString());
 }
@@ -67,7 +66,7 @@ public static class Util {
         new BinaryFormatter { AssemblyFormat = FormatterAssemblyStyle.Simple };
     static BinaryFormatter GetFormatter() {
         var ret = GetBinaryFormatter;
-        ret.Binder = new MyBinder();
+        //ret.Binder = new MyBinder();
         return ret;
     }
 

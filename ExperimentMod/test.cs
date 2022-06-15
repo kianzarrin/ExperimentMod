@@ -8,20 +8,18 @@ using System.Runtime.Serialization.Formatters.Binary;
 using KianCommons;
 
 class Test {
-    const string FILE = "dummy.d";
+    const string FILE = "dummy.d"; 
     public static void Run() {
-        try {
-            {
-                var bar = Bar.Create();
-                //Serialize(bar);
-            }
-            {
-                var bar = Deserialize();
-                bar.Prints();
-            }
-        }catch(Exception ex) {
-            ex.Log();
+        // System.Runtime.Serialization.Formatters.Binary.ObjectReader.ReadValue
+        // ReadType
+        { 
+            var bar = Bar.Create();
+            //Serialize(bar); 
         }
+        {
+            var bar = Deserialize();
+            bar.Prints();
+        } 
     }
 
     public static void Serialize(Bar bar) => File.WriteAllBytes(FILE, Util.Serialize(bar));
@@ -59,10 +57,11 @@ public class Bar {
 
 sealed class MyBinder : SerializationBinder {
     public override Type BindToType(string assemblyName, string typeName) {
-        Log.Debug(Environment.StackTrace);
+        Log.Called(assemblyName, typeName);
         return null;
     }
 }
+
 public static class Util {
     static BinaryFormatter GetBinaryFormatter =>
         new BinaryFormatter { AssemblyFormat = FormatterAssemblyStyle.Simple };
@@ -78,7 +77,7 @@ public static class Util {
         var memoryStream = new MemoryStream();
         memoryStream.Write(data, 0, data.Length);
         memoryStream.Position = 0;
-        return GetBinaryFormatter.Deserialize(memoryStream);
+        return GetFormatter().Deserialize(memoryStream);
     }
 
     public static byte[] Serialize(object obj) {

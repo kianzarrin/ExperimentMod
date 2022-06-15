@@ -15,7 +15,7 @@ namespace ExperimentMod {
             try {
                 Test.Run();
             } catch(Exception ex) { ex.Log(); }
-            Process.GetCurrentProcess().Kill();
+            //Process.GetCurrentProcess().Kill();
         }
 
     }

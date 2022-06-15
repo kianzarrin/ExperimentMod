@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization.Formatters.Binary;
 using KianCommons;
@@ -7,14 +10,22 @@ using KianCommons;
 class Test {
     const string FILE = "dummy.d";
     public static void Run() {
-        //var foo = Foo.Create();
-        //Serialize(foo);
-        var foo2 = Deserialize();
-        foo2.Prints();
+        try {
+            {
+                var bar = Bar.Create();
+                //Serialize(bar);
+            }
+            {
+                var bar = Deserialize();
+                bar.Prints();
+            }
+        }catch(Exception ex) {
+            ex.Log();
+        }
     }
 
-    public static void Serialize(Foo foo) => File.WriteAllBytes(FILE, Util.Serialize(foo));
-    public static Foo Deserialize() => Util.Deserialize(File.ReadAllBytes(FILE)) as Foo;
+    public static void Serialize(Bar bar) => File.WriteAllBytes(FILE, Util.Serialize(bar));
+    public static Bar Deserialize() => Util.Deserialize(File.ReadAllBytes(FILE)) as Bar;
 }
 
 [Serializable]
@@ -30,10 +41,36 @@ public class Foo {
     public void Prints() => Log.Debug(ToString());
 }
 
+[Serializable]
 
+public class Bar {
+    public List<Foo> Foos;
+    public Bar Init() {
+        Foos = new();
+        Foos.Add(new Foo { X1 = 1, X2 = 2, X3 = 3 });
+        Foos.Add(new Foo { X1 = 11, X2 = 22, X3 = 33 });
+        return this;
+    }
+    public static Bar Create() => new Bar().Init();
+    public override string ToString() => $"Bar[{Foos.ToSTR()}]";
+    public void Prints() => Log.Debug(ToString());
+
+}
+
+sealed class MyBinder : SerializationBinder {
+    public override Type BindToType(string assemblyName, string typeName) {
+        Log.Debug(Environment.StackTrace);
+        return null;
+    }
+}
 public static class Util {
     static BinaryFormatter GetBinaryFormatter =>
-    new BinaryFormatter { AssemblyFormat = FormatterAssemblyStyle.Simple };
+        new BinaryFormatter { AssemblyFormat = FormatterAssemblyStyle.Simple };
+    static BinaryFormatter GetFormatter() {
+        var ret = GetBinaryFormatter;
+        ret.Binder = new MyBinder();
+        return ret;
+    }
 
     public static object Deserialize(byte[] data) {
         if (data == null || data.Length == 0) return null;

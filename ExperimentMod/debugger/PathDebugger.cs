@@ -26,6 +26,7 @@ namespace ExperimentMod {
         protected virtual bool showFrame => ModSettings.ShowFrames;
         protected virtual bool showTargets => ModSettings.ShowTargetPos;
         protected virtual bool showLookTargets => ModSettings.ShowLookTarget;
+        protected virtual bool showSeg => ModSettings.ShowSeg;
 
         public static void RenderOverlayALL(RenderManager.CameraInfo cameraInfo) {
             try {

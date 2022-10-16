@@ -1,4 +1,5 @@
 namespace ExperimentMod {
+    using ColossalFramework;
     using ColossalFramework.Math;
     using UnityEngine;
 
@@ -27,6 +28,20 @@ namespace ExperimentMod {
                     float r = hw * (.25f + .25f * i);
                     RenderCircle(cameraInfo, vehicle.GetTargetPos(i), colorT, r);
                 }
+            }
+            if (showSeg) {
+                float hw = GetID().ToVehicle().Info.m_generatedInfo.m_size.x * 0.5f;
+                Segment3 vehSegment = vehicle.m_segment;
+                Singleton<RenderManager>.instance.OverlayEffect.DrawSegment(
+                cameraInfo,
+                new Color(0.85f, 0.01f, 1f),
+                vehSegment,
+                hw,
+                hw * 1.9f,
+                vehSegment.Min().y - 0.1f,
+                vehSegment.Max().y + 0.1f,
+                renderLimits: true,
+                alphaBlend: alphaBlend);
             }
 
         }

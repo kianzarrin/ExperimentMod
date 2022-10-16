@@ -23,6 +23,7 @@ namespace ExperimentMod {
         public static SavedBool ShowLookTarget = new SavedBool("ShowLookTarget", FileName, true);
         public static SavedBool ShowTargetPos = new SavedBool("ShowTargetPos", FileName, false);
         public static SavedBool ShowFrames = new SavedBool("ShowFrames", FileName, false);
+        public static SavedBool ShowSeg = new SavedBool("ShowLookTarget", FileName, true);
         public static SavedInt TargetPos = new SavedInt("TargetPos", FileName, 3);
         static UISlider Slider;
         public static void OnSettingsUI(UIHelper helper) {
@@ -30,6 +31,7 @@ namespace ExperimentMod {
             helper.AddSavedToggle("render look targets overlay", ShowLookTarget);
             helper.AddSavedToggle("render target position[s] overlay", ShowTargetPos);
             helper.AddSavedToggle("render frames overlay", ShowFrames);
+            helper.AddSavedToggle("render vehicle seg", ShowSeg);
             Slider = helper.AddSlider(
                 "choose targetPos to use:",
                 min:0, max:3, step:1,
@@ -37,7 +39,7 @@ namespace ExperimentMod {
                 delegate(float val) {
                     TargetPos.value = (int)val;
                     Slider.tooltip = $"m_targetPos{val}";
-                    Slider.RefreshTooltip();
+                    Slider.parent.RefreshTooltip();
                 }) as UISlider;
         }
     }

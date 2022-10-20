@@ -66,7 +66,8 @@
 
         public void OnSettingsUI(UIHelperBase helper)
         {
-            
+            Log.Called();
+            Log.Debug(Environment.StackTrace);
         }
     }
 }

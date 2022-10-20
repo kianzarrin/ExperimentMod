@@ -41,17 +41,11 @@
     <None Remove="KianCommons\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="KianCommons\KianCommons\Math\BezierUtil.cs" />
-    <Compile Include="KianCommons\KianCommons\Math\MathUtil.cs" />
-    <Compile Include="KianCommons\KianCommons\Math\VecetorUtils.cs" />
-    <Compile Include="KianCommons\KianCommons\Patches\HarmonyUtil.cs" />
-    <Compile Include="KianCommons\KianCommons\Patches\TranspilerUtils.cs" />
     <Compile Include="KianCommons\KianCommons\Util\Assertion.cs" />
-    <Compile Include="KianCommons\KianCommons\Util\EnumBitMaskExtensions.cs" />
     <Compile Include="KianCommons\KianCommons\Util\EnumerationExtensions.cs" />
     <Compile Include="KianCommons\KianCommons\Util\HelpersExtensions.cs" />
     <Compile Include="KianCommons\KianCommons\Util\Log.cs" />
-    <Compile Include="KianCommons\KianCommons\Util\NetUtil.cs" />
+    <Compile Include="KianCommons\KianCommons\Util\Prompt.cs" />
     <Compile Include="KianCommons\KianCommons\Util\ReflectionHelpers.cs" />
     <Compile Include="KianCommons\KianCommons\Util\StringExtensions.cs" />
   </ItemGroup>
@@ -92,7 +86,7 @@
     </ItemGroup>
     
     <Delete Files="$(TargetPath).mdb" />
-    <Exec Command='"$(pdb2mdb)" "$(TargetPath)"' />
+    <Exec Command="&quot;$(pdb2mdb)&quot; &quot;$(TargetPath)&quot;" />
     <Copy SourceFiles="$(TargetPath).mdb" DestinationFolder="$(DeployDir)" />
     <Copy SourceFiles="@(AuxilaryFiles)" DestinationFolder="$(DeployDir)" />
     <Delete Files="$(DeployDir)$(TargetFileName)" />

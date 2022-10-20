@@ -1,12 +1,10 @@
 ﻿namespace ExperimentMod {
     using System;
-    using JetBrains.Annotations;
     using ICities;
-    using CitiesHarmony.API;
-    using System.Diagnostics;
     using KianCommons;
+    using KianCommons.IImplict;
 
-    public class UserMod : IUserMod {
+    public class UserMod : IUserMod, IMod {
         static UserMod() {
             Log.Called();
             Log.Debug(Environment.StackTrace);
@@ -23,14 +21,12 @@
         public string Name => "Experiment Mod " + VersionString;
         public string Description => "control Road/junction transitions";
 
-        [UsedImplicitly]
         public void OnEnabled()
         {
             Log.Called();
             Log.Debug(Environment.StackTrace);
         }
 
-        [UsedImplicitly]
         public void OnDisabled()
         {
             Log.Called();
@@ -42,6 +38,5 @@
         //{
         //    GUI.Settings.OnSettingsUI(helper);
         //}
-
     }
 }

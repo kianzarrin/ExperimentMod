@@ -1,8 +1,39 @@
 ﻿namespace ExperimentMod {
     using System;
+    using System.Collections.Generic;
     using ICities;
     using KianCommons;
     using KianCommons.IImplict;
+    using TrafficManager.API;
+    using TrafficManager.API.Traffic;
+
+    public class TMPEBasedClass : TrafficManager.API.Traffic.ISegmentEnd
+    {
+        public void Update()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDictionary<ushort, uint>[] MeasureOutgoingVehicles(bool includeStopped = true, bool debug = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ushort NodeId { get; }
+
+        public bool Relocate(ushort segmentId, bool startNode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ushort SegmentId { get; }
+        public bool StartNode { get; }
+
+        public bool Equals(ISegmentEndId other)
+        {
+            throw new NotImplementedException();
+        }
+    }
 
     public class UserMod : IUserMod, IMod {
         static UserMod() {
@@ -33,10 +64,9 @@
             Log.Debug(Environment.StackTrace);
         }
 
-        //[UsedImplicitly]
-        //public void OnSettingsUI(UIHelperBase helper)
-        //{
-        //    GUI.Settings.OnSettingsUI(helper);
-        //}
+        public void OnSettingsUI(UIHelperBase helper)
+        {
+            
+        }
     }
 }

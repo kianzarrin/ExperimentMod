@@ -3,8 +3,11 @@ namespace ExperimentMod {
     using KianCommons;
     using System;
     using UnityEngine;
+    using static NetInfo;
 
     public static class Extensions {
+        public const float BYTE2FLOAT_OFFSET = 1f / 255;
+
         internal static Vector3 RotateXZ90CW(this Vector3 v) =>
             new Vector3(v.z, v.y, -v.x);
         internal static Vector3 RotateXZ90CCW(this Vector3 v) =>
@@ -16,6 +19,20 @@ namespace ExperimentMod {
             ref CitizenManager.instance.m_citizens.m_buffer[id];
         public static ref Vehicle ToVehicle(this ushort id) =>
              ref VehicleManager.instance.m_vehicles.m_buffer[id];
+        public static ref PathUnit ToPathUnit(this uint id) => ref PathManager.instance.m_pathUnits.m_buffer[id];
+        public static ref NetLane GetLane(this ref PathUnit.Position pathPos) => ref PathManager.GetLaneID(pathPos).ToLane();
+        public static Vector3 GetPosition(this ref PathUnit.Position pathPos) =>
+            pathPos.GetLane().CalculatePositionByte(pathPos.m_offset);
+
+        public static Vector3 CalculatePositionByte(this ref NetLane lane, byte offset) =>
+            lane.CalculatePosition(offset * BYTE2FLOAT_OFFSET);
+
+
+        public static ushort GetNodeID(this ref PathUnit.Position pathPos) => pathPos.m_offset switch {
+            255 => pathPos.m_segment.ToSegment().m_startNode,
+            0 => pathPos.m_segment.ToSegment().m_startNode,
+            _ => 0,
+        };
     }
 
     public abstract class PathDebugger : MonoBehaviour {
@@ -27,8 +44,8 @@ namespace ExperimentMod {
         protected virtual bool showTargets => ModSettings.ShowTargetPos;
         protected virtual bool showLookTargets => ModSettings.ShowLookTarget;
         protected virtual bool showArrow => ModSettings.ShowLookArrow;
-
         protected virtual bool showSeg => ModSettings.ShowSeg;
+        protected virtual bool showPathPos => ModSettings.ShowPathPos;
 
         public static void RenderOverlayALL(RenderManager.CameraInfo cameraInfo) {
             try {
@@ -77,10 +94,38 @@ namespace ExperimentMod {
                         RenderArrow(cameraInfo, pos0, lookdir, new Color(1, 0, 1));
                     }
                 }
+                if (showPathPos) {
+                    RenderPathOverlay(cameraInfo);
+                }
                 RenderOverlay(cameraInfo, id);
             }
         }
 
+        private void RenderPathOverlay(RenderManager.CameraInfo cameraInfo) {
+            try {
+                Log.Called();
+                GetPathInfo(out uint pathUnitID, out byte lastOffset, out byte finePathPositionIndex, out Vector3 refPos);
+                byte pathIndex = (byte)(finePathPositionIndex >> 1);
+                var pathPos = pathUnitID.ToPathUnit().GetPosition(pathIndex);
+                if (pathPos.m_segment == 0) return;
+                if (lastOffset != 255) {
+                    Vector3 lastPos = pathPos.GetLane().CalculatePositionByte(lastOffset);
+                    RenderCircle(cameraInfo, lastPos, Color.red, 1);
+                    //RenderArrow(cameraInfo, lastPos, pathPos.GetPosition() - lastPos, Color.blue);
+                }
+
+                for (int i = 0; i < 10; ++i) {
+                    if (pathIndex >= 12) {
+                        pathIndex = 0;
+                        pathUnitID = pathUnitID.ToPathUnit().m_nextPathUnit;
+                    }
+
+                    pathPos = pathUnitID.ToPathUnit().GetPosition(pathIndex++);
+                    if (pathPos.m_segment == 0) return;
+                    RenderCircle(cameraInfo, pathPos.GetPosition(), Color.magenta, 2);
+                }
+            } catch(Exception ex) { ex.Log(); }
+        }
 
         protected abstract void RenderOverlay(RenderManager.CameraInfo cameraInfo, ushort id);
 
@@ -99,6 +144,8 @@ namespace ExperimentMod {
             float t = ((targetFrame & 15U) + SimulationManager.instance.m_referenceTimer) * 0.0625f;
             return Vector3.Lerp(pos1, pos2, t);
         }
+
+        protected abstract void GetPathInfo(out uint pathUnitID, out byte lastOffset, out byte finePathPositionIndex, out Vector3 refPos);
 
         protected abstract void GetSmoothPosition(out Vector3 pos, out Quaternion rot);
         protected virtual InstanceID SelectedInstance => InstanceManager.instance.GetSelectedInstance();

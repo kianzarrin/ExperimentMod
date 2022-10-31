@@ -23,6 +23,7 @@ namespace ExperimentMod {
         public static SavedBool ShowTargetPos = new SavedBool("ShowTargetPos", FileName, true);
         public static SavedBool ShowFrames = new SavedBool("ShowFrames", FileName, true);
         public static SavedBool ShowSeg = new SavedBool("ShowSeg", FileName, true);
+        public static SavedBool ShowPathPos = new SavedBool("ShowPathPos", FileName, false);
 
         public static SavedBool ShowLookTarget = new SavedBool("ShowLookTarget", FileName, false);
         public static SavedBool ShowLookArrow = new SavedBool("ShowLookArrow", FileName, false);
@@ -33,6 +34,7 @@ namespace ExperimentMod {
             helper.AddSavedToggle("render target position[s] overlay", ShowTargetPos);
             helper.AddSavedToggle("render frames overlay", ShowFrames);
             helper.AddSavedToggle("render vehicle seg", ShowSeg);
+            helper.AddSavedToggle("Show Path unit positions", ShowPathPos);
 
             var g = helper.AddGroup("Look ahead");
             g.AddSavedToggle("render look arrow overlay", ShowLookArrow);

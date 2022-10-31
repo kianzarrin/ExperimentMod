@@ -115,39 +115,48 @@ namespace ExperimentMod {
 
         private void RenderPathOverlay(RenderManager.CameraInfo cameraInfo) {
             try {
-                Log.Called();
-                GetPathInfo(out uint pathUnitID, out byte lastOffset, out byte finePathPositionIndex, out Vector3 refPos);
-                byte pathIndex = (byte)(finePathPositionIndex >> 1);
-                var pathPos = pathUnitID.ToPathUnit().GetPosition(pathIndex);
-                if (pathPos.m_segment == 0) return;
-
-                RenderCircle(cameraInfo, refPos, Color.blue, 1);
-
-                if (lastOffset != 255) {
-                    Vector3 lastPos = pathPos.GetLane().GetPositionAndDirection(lastOffset, out _);
-                    RenderCircle(cameraInfo, lastPos, Color.red, 1);
+                {
+                    GetSmoothPosition(out var pos, out Quaternion rot);
+                    var dir = (rot * Vector3.forward).normalized;
+                    RenderCircle(cameraInfo, pos, Color.white, 1);
                 }
 
+                GetPathInfo(out uint pathUnitID, out byte lastOffset, out byte finePathPositionIndex, out Vector3 pos0);
+                RenderCircle(cameraInfo, pos0, Color.blue, 1);
 
-                Vector3 pos0 = default, dir0 = default;
-                for (int i = 0; i < 10; ++i) {
-                    if (pathIndex >= 12) {
-                        pathIndex = 0;
+                Vector3 dir0 = default;
+                float distance = 0;
+                while (true) {
+                    if (finePathPositionIndex >= 24) {
+                        finePathPositionIndex = 0;
                         pathUnitID = pathUnitID.ToPathUnit().m_nextPathUnit;
                     }
-                    pathPos = pathUnitID.ToPathUnit().GetPosition(pathIndex++);
+                    var pathPos = pathUnitID.ToPathUnit().GetPosition(finePathPositionIndex>>1);
                     if (pathPos.m_segment == 0) return;
 
                     Vector3 pos1, dir1;
-                    if (i > 0) {
+                    if ((finePathPositionIndex & 1) == 1) {
                         pos1 = pathPos.GetOtherPositionAndDirection(out dir1);
                         RenderCircle(cameraInfo, pos: pos1, Color.cyan, radius: 1.5f);
-                        BezierUtil.Bezier3ByDir(pos0, -dir0, pos1, -dir1).
-                            Render(cameraInfo, Color.yellow, hw: 2, alphaBlend: true, cutEnds: false);
+                        finePathPositionIndex++;
                     } else {
-                        GetSmoothPosition(out pos1, out Quaternion rot1);
-                        dir1 = (rot1 * Vector3.forward).normalized;
-                        RenderCircle(cameraInfo, pos1, Color.white, 1);
+                        // can only happen first loop.
+                        pathUnitID.ToPathUnit().CalculatePathPositionOffset(finePathPositionIndex >> 1, pos0, out byte offset);
+                        pos1 = pathPos.GetPositionAndDirection(out dir1);
+                        if (pathPos.m_offset == 0) dir1 = -dir1;
+                        RenderCircle(cameraInfo, pos1, Color.red, 1);
+                    }
+
+                    bool firstLoop = distance == 0;
+                    if (!firstLoop) {
+                        var bezier = BezierUtil.Bezier3ByDir(pos0, -dir0, pos1, -dir1);
+                        bezier.Render(cameraInfo, Color.yellow, hw: 2, alphaBlend: true, cutEnds: false);
+                        distance += bezier.ArcLength(0.2f);
+                        if (distance > 20) {
+                            float t = bezier.Travel(0, 20 - distance);
+                            var ret = bezier.Position(t);
+                            return;
+                        }
                     }
 
                     Vector3 pos2 = pathPos.GetPositionAndDirection(out Vector3 dir2);
@@ -156,11 +165,21 @@ namespace ExperimentMod {
                     //    RenderArrow(cameraInfo, pos1, dir1 * 4, Color.cyan);
                     //    RenderArrow(cameraInfo, pos2, dir2 * 4, Color.magenta, size: 0.5f);
                     //} 
-                    BezierUtil.Bezier3ByDir(startPos: pos1, dir1, pos2, dir2).
-                        Render(cameraInfo, Color.green, hw: 2, alphaBlend: true, cutEnds: false);
-                    
+                    {
+                        var bezier = BezierUtil.Bezier3ByDir(startPos: pos1, dir1, pos2, dir2);
+                        bezier.Render(cameraInfo, Color.green, hw: 2, alphaBlend: true, cutEnds: false);
+                        distance += bezier.ArcLength(0.2f);
+                        if (distance > 20) {
+                            float t = bezier.Travel(0, 20 - distance);
+                            var ret = bezier.Position(t);
+                            return;
+                        }
+
+                    }
+
                     pos0 = pos2;
                     dir0 = dir2;
+                    finePathPositionIndex++;
                 }
             } catch(Exception ex) { ex.Log(); }
         }

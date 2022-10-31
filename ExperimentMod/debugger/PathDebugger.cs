@@ -111,6 +111,9 @@ namespace ExperimentMod {
                 if (lastOffset != 255) {
                     Vector3 lastPos = pathPos.GetLane().CalculatePositionByte(lastOffset);
                     RenderCircle(cameraInfo, lastPos, Color.red, 1);
+                    RenderCircle(cameraInfo, refPos, Color.blue, 1);
+                    GetSmoothPosition(out var pos, out _);
+                    RenderCircle(cameraInfo, pos, Color.white, 1);
                     //RenderArrow(cameraInfo, lastPos, pathPos.GetPosition() - lastPos, Color.blue);
                 }
 

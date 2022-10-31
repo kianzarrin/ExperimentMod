@@ -5,7 +5,7 @@ namespace ExperimentMod {
 
     public class VehicleDebugger : PathDebugger {
         public static VehicleDebugger Instance;
-        int targetPosIndex => ModSettings.TargetPos;
+        int targetPosIndex => ModSettings.LookTargetPos;
 
         protected override void SimulationFrame(ushort id) {
             ref var vehicle = ref id.ToVehicle();

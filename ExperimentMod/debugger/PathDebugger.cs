@@ -26,6 +26,8 @@ namespace ExperimentMod {
         protected virtual bool showFrame => ModSettings.ShowFrames;
         protected virtual bool showTargets => ModSettings.ShowTargetPos;
         protected virtual bool showLookTargets => ModSettings.ShowLookTarget;
+        protected virtual bool showArrow => ModSettings.ShowLookArrow;
+
         protected virtual bool showSeg => ModSettings.ShowSeg;
 
         public static void RenderOverlayALL(RenderManager.CameraInfo cameraInfo) {
@@ -60,10 +62,10 @@ namespace ExperimentMod {
                         Color colorT = new Color32(255, (byte)(50 + 50 * i), (byte)(50 * i), 255);
                         float hw = 1.5f;
                         float r = hw * (.25f + .25f * i);
-                        RenderCircle(cameraInfo, GetTargetPosFrame(targetF), colorT, r);
+                        RenderCircle(cameraInfo, GetTargetLookPosFrame(targetF), colorT, r);
                     }
                 }
-                {
+                if(showArrow) {
                     GetSmoothPosition(out var pos0, out var rot0);
                     var lookPos = GetSmoothLookPos();
                     var lookdir = lookPos - pos0;
@@ -92,8 +94,8 @@ namespace ExperimentMod {
         protected abstract uint GetTargetFrame();
         protected virtual Vector3 GetSmoothLookPos() {
             uint targetFrame = GetTargetFrame();
-            Vector4 pos1 = GetTargetPosFrame(targetFrame - 16U);
-            Vector4 pos2 = GetTargetPosFrame(targetFrame - 0);
+            Vector4 pos1 = GetTargetLookPosFrame(targetFrame - 16U);
+            Vector4 pos2 = GetTargetLookPosFrame(targetFrame - 0);
             float t = ((targetFrame & 15U) + SimulationManager.instance.m_referenceTimer) * 0.0625f;
             return Vector3.Lerp(pos1, pos2, t);
         }
@@ -106,7 +108,7 @@ namespace ExperimentMod {
             return id;
         }
 
-        protected Vector4 GetTargetPosFrame(uint simulationFrame) {
+        protected Vector4 GetTargetLookPosFrame(uint simulationFrame) {
             uint index = simulationFrame >> 4 & 3U;
             return TargetLookPosFrames[index];
         }

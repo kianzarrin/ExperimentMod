@@ -25,7 +25,7 @@ namespace ExperimentMod {
             
             HarmonyHelper.DoOnHarmonyReady(() => HarmonyUtil.InstallHarmony(HARMONY_ID));
 
-            if (HelpersExtensions.InGame) {
+            if (!Helpers.InStartupMenu) {
                 Install();
             }
         }
@@ -33,7 +33,7 @@ namespace ExperimentMod {
         [UsedImplicitly]
         public void OnDisabled()
         {
-            if (HelpersExtensions.InGame) {
+            if (!Helpers.InStartupMenu) {
                 UnInstall();
             }
             HarmonyUtil.UninstallHarmony(HARMONY_ID);

@@ -60,12 +60,13 @@ namespace ExperimentMod {
             Instance = this;
         }
 
-        protected override void GetPathInfo(out uint pathUnitID, out byte lastOffset, out byte finePathPositionIndex, out Vector3 refPos) {
+        protected override void GetPathInfo(out uint pathUnitID, out byte lastOffset, out byte finePathPositionIndex, out Vector3 refPos, out Vector3 velocity) {
             ref CitizenInstance citizenInstance = ref GetID().ToCitizenInstance();
             pathUnitID = citizenInstance.m_path;
             lastOffset = citizenInstance.m_lastPathOffset;
             finePathPositionIndex = citizenInstance.m_pathPositionIndex;
             refPos = citizenInstance.GetLastFramePosition();
+            velocity = citizenInstance.GetLastFrameData().m_velocity;
         }
 
         protected override uint GetTargetFrame() {

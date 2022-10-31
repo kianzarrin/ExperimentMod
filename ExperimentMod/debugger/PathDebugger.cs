@@ -41,8 +41,13 @@ namespace ExperimentMod {
         }
 
         public static ushort GetNodeID(this ref PathUnit.Position pathPos) => pathPos.m_offset switch {
-            255 => pathPos.m_segment.ToSegment().m_startNode,
+            255 => pathPos.m_segment.ToSegment().m_endNode,
             0 => pathPos.m_segment.ToSegment().m_startNode,
+            _ => 0,
+        };
+        public static ushort GetOtherNodeID(this ref PathUnit.Position pathPos) => pathPos.m_offset switch {
+            255 => pathPos.m_segment.ToSegment().m_startNode,
+            0 => pathPos.m_segment.ToSegment().m_endNode,
             _ => 0,
         };
     }
@@ -115,48 +120,62 @@ namespace ExperimentMod {
 
         private void RenderPathOverlay(RenderManager.CameraInfo cameraInfo) {
             try {
-                {
-                    GetSmoothPosition(out var pos, out Quaternion rot);
-                    var dir = (rot * Vector3.forward).normalized;
-                    RenderCircle(cameraInfo, pos, Color.white, 1);
-                }
-
-                GetPathInfo(out uint pathUnitID, out byte lastOffset, out byte finePathPositionIndex, out Vector3 pos0);
+                GetPathInfo(
+                    out uint pathUnitID,
+                    out byte lastOffset,
+                    out byte finePathPositionIndex,
+                    out Vector3 pos0,
+                    out Vector3 velocity0);
                 RenderCircle(cameraInfo, pos0, Color.blue, 1);
 
-                Vector3 dir0 = default;
-                float distance = 0;
+                var pathPos = pathUnitID.ToPathUnit().GetPosition(finePathPositionIndex >> 1);
+                if (pathPos.m_segment == 0) return;
+
+                float distance = velocity0.magnitude * 10; // 10 seconds
+                float accDistance = 0;
+                float t1 = 0;
+                Vector3 dir0 = velocity0.normalized;
+                if (finePathPositionIndex == 255) {
+                    // initial position
+                    finePathPositionIndex = 0;
+                    pathPos.GetLane().GetClosestPosition(pos0, out _, out t1);
+                } else if((finePathPositionIndex &1) == 0) {
+                    t1 = pathPos.m_offset * (1f / 255f);
+                    finePathPositionIndex+=2;
+                } else {
+                    finePathPositionIndex++;
+                }
+
                 while (true) {
                     if (finePathPositionIndex >= 24) {
                         finePathPositionIndex = 0;
                         pathUnitID = pathUnitID.ToPathUnit().m_nextPathUnit;
+                        if (pathUnitID == 0) return;
                     }
-                    var pathPos = pathUnitID.ToPathUnit().GetPosition(finePathPositionIndex>>1);
+                    pathPos = pathUnitID.ToPathUnit().GetPosition(finePathPositionIndex>>1);
                     if (pathPos.m_segment == 0) return;
 
                     Vector3 pos1, dir1;
-                    if ((finePathPositionIndex & 1) == 1) {
+                    bool firstLoop = accDistance == 0;
+                    if (!firstLoop) {
                         pos1 = pathPos.GetOtherPositionAndDirection(out dir1);
                         RenderCircle(cameraInfo, pos: pos1, Color.cyan, radius: 1.5f);
-                        finePathPositionIndex++;
-                    } else {
-                        // can only happen first loop.
-                        pathUnitID.ToPathUnit().CalculatePathPositionOffset(finePathPositionIndex >> 1, pos0, out byte offset);
-                        pos1 = pathPos.GetPositionAndDirection(out dir1);
-                        if (pathPos.m_offset == 0) dir1 = -dir1;
-                        RenderCircle(cameraInfo, pos1, Color.red, 1);
-                    }
-
-                    bool firstLoop = distance == 0;
-                    if (!firstLoop) {
-                        var bezier = BezierUtil.Bezier3ByDir(pos0, -dir0, pos1, -dir1);
+                        var bezier = BezierUtil.Bezier3ByDir(pos0, -dir0, pos1, -dir1, true, true);
+                        float l = bezier.ArcLength(0.2f);
+                        if (accDistance + l >= distance) {
+                            float t = bezier.Travel(0, accDistance - distance);
+                            bezier = bezier.Cut(0, t);
+                        }
+                        accDistance += l;
                         bezier.Render(cameraInfo, Color.yellow, hw: 2, alphaBlend: true, cutEnds: false);
-                        distance += bezier.ArcLength(0.2f);
-                        if (distance > 20) {
-                            float t = bezier.Travel(0, 20 - distance);
-                            var ret = bezier.Position(t);
+                        if (accDistance >= distance) {
                             return;
                         }
+                        finePathPositionIndex++;
+                    } else {
+                        //first loop.
+                        pos1 = pos0;
+                        dir1 = dir0; 
                     }
 
                     Vector3 pos2 = pathPos.GetPositionAndDirection(out Vector3 dir2);
@@ -166,17 +185,25 @@ namespace ExperimentMod {
                     //    RenderArrow(cameraInfo, pos2, dir2 * 4, Color.magenta, size: 0.5f);
                     //} 
                     {
-                        var bezier = BezierUtil.Bezier3ByDir(startPos: pos1, dir1, pos2, dir2);
+                        Bezier3 bezier = pathPos.GetLane().m_bezier;
+                        float t2 = 1;
+                        if (pathPos.GetNodeID() == 0) {
+                            t2 = pathPos.m_offset * (1f / 255); // final path pos.
+                        }
+                        bezier = bezier.Cut(t1, t2);
+                        float l = bezier.ArcLength(0.2f);
+                        if (accDistance + l >= distance) {
+                            float t = bezier.Travel(0, distance - accDistance);
+                            bezier = bezier.Cut(0, t);
+                        }
+                        accDistance += l;
                         bezier.Render(cameraInfo, Color.green, hw: 2, alphaBlend: true, cutEnds: false);
-                        distance += bezier.ArcLength(0.2f);
-                        if (distance > 20) {
-                            float t = bezier.Travel(0, 20 - distance);
-                            var ret = bezier.Position(t);
+                        if (accDistance >= distance) {
                             return;
                         }
-
                     }
 
+                    t1 = 0;
                     pos0 = pos2;
                     dir0 = dir2;
                     finePathPositionIndex++;
@@ -202,7 +229,7 @@ namespace ExperimentMod {
             return Vector3.Lerp(pos1, pos2, t);
         }
 
-        protected abstract void GetPathInfo(out uint pathUnitID, out byte lastOffset, out byte finePathPositionIndex, out Vector3 refPos);
+        protected abstract void GetPathInfo(out uint pathUnitID, out byte lastOffset, out byte finePathPositionIndex, out Vector3 refPos, out Vector3 velocity);
 
         protected abstract void GetSmoothPosition(out Vector3 pos, out Quaternion rot);
 

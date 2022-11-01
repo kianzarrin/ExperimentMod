@@ -63,9 +63,7 @@ namespace ExperimentMod {
 
         public static byte GetEndOffsetToward(this PathUnit.Position pathPos, PathUnit.Position pathPos0) {
             ushort nodeId = pathPos0.GetNodeID();
-            Assertion.Assert(nodeId != 0, "nodeId");
             bool startNode = pathPos.m_segment.ToSegment().IsStartNode(nodeId);
-            Assertion.Equal(pathPos.m_segment.ToSegment().GetNode(startNode), nodeId, "nodeId");
             if (startNode) return 0;
             else return 255;
         }
@@ -140,7 +138,6 @@ namespace ExperimentMod {
 
         private void RenderPathOverlay(RenderManager.CameraInfo cameraInfo) {
             try {
-                Log.Called();
                 GetPathInfo(out uint pathUnitID, out byte lastOffset, out byte finePathPositionIndex, out Vector3 refPos);
                 RenderCircle(cameraInfo, refPos, Color.blue, 1); // last frame position
 

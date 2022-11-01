@@ -128,9 +128,7 @@ namespace ExperimentMod {
                     out Vector3 velocity0);
                 RenderCircle(cameraInfo, pos0, Color.blue, 1);
 
-                var pathPos = pathUnitID.ToPathUnit().GetPosition(finePathPositionIndex >> 1);
-                if (pathPos.m_segment == 0) return;
-
+                PathUnit.Position pathPos;
                 float distance = velocity0.magnitude * 10; // 10 seconds
                 float accDistance = 0;
                 float t1 = 0;
@@ -138,8 +136,10 @@ namespace ExperimentMod {
                 if (finePathPositionIndex == 255) {
                     // initial position
                     finePathPositionIndex = 0;
+                    pathPos = pathUnitID.ToPathUnit().GetPosition(0);
                     pathPos.GetLane().GetClosestPosition(pos0, out _, out t1);
                 } else if((finePathPositionIndex &1) == 0) {
+                    pathPos = pathUnitID.ToPathUnit().GetPosition(finePathPositionIndex >> 1);
                     t1 = pathPos.m_offset * (1f / 255f);
                     finePathPositionIndex+=2;
                 } else {
@@ -147,14 +147,8 @@ namespace ExperimentMod {
                 }
 
                 while (true) {
-                    if (finePathPositionIndex >= 24) {
-                        finePathPositionIndex = 0;
-                        pathUnitID = pathUnitID.ToPathUnit().m_nextPathUnit;
-                        if (pathUnitID == 0) return;
-                    }
-                    pathPos = pathUnitID.ToPathUnit().GetPosition(finePathPositionIndex>>1);
-                    if (pathPos.m_segment == 0) return;
-
+                    if (!RollAndGetPathPos(ref pathUnitID, finePathPositionIndex, out pathPos))
+                        return;
                     Vector3 pos1, dir1;
                     bool firstLoop = accDistance == 0;
                     if (!firstLoop) {
@@ -209,6 +203,20 @@ namespace ExperimentMod {
                     finePathPositionIndex++;
                 }
             } catch(Exception ex) { ex.Log(); }
+            static bool RollAndGetPathPos(ref uint pathUnitID, byte finePathIndex, out PathUnit.Position pathPos) {
+                if (finePathIndex >= 24) {
+                    finePathIndex = 0;
+                    pathUnitID = pathUnitID.ToPathUnit().m_nextPathUnit;
+                }
+                if (pathUnitID == 0 || (finePathIndex >>1) >= pathUnitID.ToPathUnit().m_positionCount) {
+                    pathPos = default;
+                    return false;
+                }
+
+                pathPos = pathUnitID.ToPathUnit().GetPosition(finePathIndex>>1);
+                if (pathPos.m_segment == 0) return false;
+                return true;
+            }
         }
 
         protected abstract void RenderOverlay(RenderManager.CameraInfo cameraInfo, ushort id);

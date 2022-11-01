@@ -106,8 +106,7 @@ namespace ExperimentMod {
                 Log.Called();
                 GetPathInfo(out uint pathUnitID, out byte lastOffset, out byte finePathPositionIndex, out Vector3 refPos);
                 byte pathIndex = (byte)(finePathPositionIndex >> 1);
-                var pathPos = pathUnitID.ToPathUnit().GetPosition(pathIndex);
-                if (pathPos.m_segment == 0) return;
+                if (!RollAndGetPathPos(ref pathUnitID, pathIndex, out var pathPos)) return;
                 if (lastOffset != 255) {
                     Vector3 lastPos = pathPos.GetLane().CalculatePositionByte(lastOffset);
                     RenderCircle(cameraInfo, lastPos, Color.red, 1);
@@ -118,16 +117,26 @@ namespace ExperimentMod {
                 }
 
                 for (int i = 0; i < 10; ++i) {
-                    if (pathIndex >= 12) {
-                        pathIndex = 0;
-                        pathUnitID = pathUnitID.ToPathUnit().m_nextPathUnit;
-                    }
-
-                    pathPos = pathUnitID.ToPathUnit().GetPosition(pathIndex++);
-                    if (pathPos.m_segment == 0) return;
+                    if (!RollAndGetPathPos(ref pathUnitID, pathIndex, out pathPos)) return;
                     RenderCircle(cameraInfo, pathPos.GetPosition(), Color.magenta, 2);
+                    pathIndex++;
                 }
             } catch(Exception ex) { ex.Log(); }
+
+            static bool RollAndGetPathPos(ref uint pathUnitID, byte pathIndex, out PathUnit.Position pathPos) {
+                if(pathIndex >= 12) {
+                    pathIndex = 0;
+                    pathUnitID = pathUnitID.ToPathUnit().m_nextPathUnit;
+                }
+                if (pathUnitID == 0 || pathIndex >= pathUnitID.ToPathUnit().m_positionCount) {
+                    pathPos = default;
+                    return false;
+                }
+
+                pathPos = pathUnitID.ToPathUnit().GetPosition(pathIndex);
+                if(pathPos.m_segment == 0) return false;
+                return true;
+            }
         }
 
         protected abstract void RenderOverlay(RenderManager.CameraInfo cameraInfo, ushort id);

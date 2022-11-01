@@ -105,25 +105,29 @@ namespace ExperimentMod {
             try {
                 Log.Called();
                 GetPathInfo(out uint pathUnitID, out byte lastOffset, out byte finePathPositionIndex, out Vector3 refPos);
+                if (finePathPositionIndex == 255) {
+                    finePathPositionIndex = 0;
+                }
+
                 byte pathIndex = (byte)(finePathPositionIndex >> 1);
-                if (!RollAndGetPathPos(ref pathUnitID, pathIndex, out var pathPos)) return;
-                if (lastOffset != 255) {
+
+                if (!RollAndGetPathPos(ref pathUnitID, ref pathIndex, out var pathPos))
+                    return;
+                {
                     Vector3 lastPos = pathPos.GetLane().CalculatePositionByte(lastOffset);
                     RenderCircle(cameraInfo, lastPos, Color.red, 1);
-                    RenderCircle(cameraInfo, refPos, Color.blue, 1);
-                    GetSmoothPosition(out var pos, out _);
-                    RenderCircle(cameraInfo, pos, Color.white, 1);
-                    //RenderArrow(cameraInfo, lastPos, pathPos.GetPosition() - lastPos, Color.blue);
+                    RenderCircle(cameraInfo, refPos, Color.blue, 1); // last frame position
                 }
 
                 for (int i = 0; i < 10; ++i) {
-                    if (!RollAndGetPathPos(ref pathUnitID, pathIndex, out pathPos)) return;
+                    if (!RollAndGetPathPos(ref pathUnitID, ref pathIndex, out pathPos))
+                        return;
                     RenderCircle(cameraInfo, pathPos.GetPosition(), Color.magenta, 2);
                     pathIndex++;
                 }
             } catch(Exception ex) { ex.Log(); }
 
-            static bool RollAndGetPathPos(ref uint pathUnitID, byte pathIndex, out PathUnit.Position pathPos) {
+            static bool RollAndGetPathPos(ref uint pathUnitID, ref byte pathIndex, out PathUnit.Position pathPos) {
                 if(pathIndex >= 12) {
                     pathIndex = 0;
                     pathUnitID = pathUnitID.ToPathUnit().m_nextPathUnit;

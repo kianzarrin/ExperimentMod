@@ -7,6 +7,7 @@ namespace ExperimentMod {
     using System;
     using UnityEngine;
     using static NetInfo;
+    using static RenderManager;
 
     public static class Extensions {
         public const float BYTE2FLOAT_OFFSET = 1f / 255;
@@ -25,19 +26,44 @@ namespace ExperimentMod {
         public static ref PathUnit ToPathUnit(this uint id) => ref PathManager.instance.m_pathUnits.m_buffer[id];
         public static ref NetLane GetLane(this ref PathUnit.Position pathPos) => ref PathManager.GetLaneID(pathPos).ToLane();
 
+        public static bool CalculateTransitionBezier(this PathUnit pathUnit, byte finePathPosIndex, out Bezier3 bezier) {
+            bezier = default;
+            if ((finePathPosIndex & 1) == 0) return false; // transition is odd
+            if ((finePathPosIndex >> 1) >= pathUnit.m_positionCount) return false; // bad index
+            var pathPos1 = pathUnit.GetPosition(finePathPosIndex >> 1);
+            if (pathPos1.m_segment == 0) return false;
+            if (!pathUnit.GetNextPosition(finePathPosIndex >> 1, out var pathPos2)) return false;
+            bezier = pathPos1.CalculateTransitionBezier(pathPos2);
+            return true;
+        }
 
-        public static Vector3 GetPositionAndDirection(this ref PathUnit.Position pathPos, out Vector3 dir) =>
-            pathPos.GetLane().GetPositionAndDirection(pathPos.m_offset, out dir);
+        public static Vector3 GetPosition(this PathUnit.Position pathPos) =>
+            pathPos.GetLane().CalculatePosition(pathPos.m_offset * BYTE2FLOAT_OFFSET);
 
-        public static Vector3 GetOtherPositionAndDirection(this ref PathUnit.Position pathPos, out Vector3 dir) =>
-            pathPos.GetLane().GetPositionAndDirection((byte)(255-pathPos.m_offset), out dir);
-
-        /// <param name="dir">normalized and pointing away from bezier end</param>
-        public static Vector3 GetPositionAndDirection(this ref NetLane lane, byte offset, out Vector3 dir) {
-            lane.CalculatePositionAndDirection(offset * BYTE2FLOAT_OFFSET, out Vector3 pos, out dir);
-            if (offset == 255) dir = -dir;
+        public static void CalculatePositionAndDirection(this PathUnit.Position pathPos, byte offset, out Vector3 pos, out Vector3 dir) {
+            pathPos.GetLane().CalculatePositionAndDirection(
+    offset * BYTE2FLOAT_OFFSET, out pos, out dir);
             dir.Normalize();
-            return pos;
+            if (offset == 0) dir = -dir;
+        }
+
+        public static Bezier3 CalculateTransitionBezier(this PathUnit.Position pathPos1, PathUnit.Position pathPos2) {
+            pathPos1.CalculatePositionAndDirection(
+            pathPos1.m_offset, out var pos1, out var dir1);
+
+            byte offset2 = pathPos2.GetEndOffsetToward(pathPos1);
+            pathPos2.CalculatePositionAndDirection(
+            offset2, out var pos2, out var dir2);
+
+            return BezierUtil.Bezier3ByDir(
+                pos1, dir1, pos2, dir2, true, true);
+        }
+
+        public static byte GetEndOffsetToward(this PathUnit.Position pathPos, PathUnit.Position pathPos0) {
+            ushort nodeId = pathPos0.GetNodeID();
+            bool startNode = pathPos.m_segment.ToSegment().IsStartNode(nodeId);
+            if (startNode) return 0;
+            else return 255;
         }
 
         public static ushort GetNodeID(this ref PathUnit.Position pathPos) => pathPos.m_offset switch {
@@ -45,14 +71,11 @@ namespace ExperimentMod {
             0 => pathPos.m_segment.ToSegment().m_startNode,
             _ => 0,
         };
-        public static ushort GetOtherNodeID(this ref PathUnit.Position pathPos) => pathPos.m_offset switch {
-            255 => pathPos.m_segment.ToSegment().m_startNode,
-            0 => pathPos.m_segment.ToSegment().m_endNode,
-            _ => 0,
-        };
+
     }
 
     public abstract class PathDebugger : MonoBehaviour {
+        public const float BYTE2FLOAT_OFFSET = 1f / 255;
         protected const float alpha = .75f;
         protected const bool renderLimits = true;
         protected const bool alphaBlend = true;
@@ -127,83 +150,77 @@ namespace ExperimentMod {
                     out Vector3 pos0,
                     out Vector3 velocity0);
                 RenderCircle(cameraInfo, pos0, Color.blue, 1);
+                if (pathUnitID == 0) return;
 
                 PathUnit.Position pathPos;
-                float distance = velocity0.magnitude * 10; // 10 seconds
+                float distance = velocity0.magnitude * 20; // 10 seconds
                 float accDistance = 0;
-                float t1 = 0;
                 Vector3 dir0 = velocity0.normalized;
                 if (finePathPositionIndex == 255) {
-                    // initial position
-                    finePathPositionIndex = 0;
-                    pathPos = pathUnitID.ToPathUnit().GetPosition(0);
-                    pathPos.GetLane().GetClosestPosition(pos0, out _, out t1);
-                } else if((finePathPositionIndex &1) == 0) {
+                    finePathPositionIndex = 0;// initial position
                     pathPos = pathUnitID.ToPathUnit().GetPosition(finePathPositionIndex >> 1);
-                    t1 = pathPos.m_offset * (1f / 255f);
-                    finePathPositionIndex+=2;
+                    if (!pathUnitID.ToPathUnit().CalculatePathPositionOffset(
+                        0, pos0, out lastOffset)) {
+                        return;
+                    }
                 } else {
-                    finePathPositionIndex++;
+                    pathPos = pathUnitID.ToPathUnit().GetPosition(finePathPositionIndex >> 1);
                 }
+
+                Bezier3 bezier;
+                if ((finePathPositionIndex & 1) == 0) { 
+                    bezier = pathPos.GetLane().m_bezier;
+                    bezier = bezier.Cut(lastOffset * BYTE2FLOAT_OFFSET, pathPos.m_offset * BYTE2FLOAT_OFFSET);
+                } else {
+                    pathUnitID.ToPathUnit().CalculateTransitionBezier(finePathPositionIndex, out bezier);
+                    bezier = bezier.Cut(lastOffset * BYTE2FLOAT_OFFSET, 1);
+                }
+                RenderCircle(cameraInfo, bezier.a, Color.red, radius: 1);
+
 
                 while (true) {
-                    if (!RollAndGetPathPos(ref pathUnitID, finePathPositionIndex, out pathPos))
+                    if (!HandleBazier(cameraInfo, bezier, ref accDistance, distance)) {
                         return;
-                    Vector3 pos1, dir1;
-                    bool firstLoop = accDistance == 0;
-                    if (!firstLoop) {
-                        pos1 = pathPos.GetOtherPositionAndDirection(out dir1);
-                        RenderCircle(cameraInfo, pos: pos1, Color.cyan, radius: 1.5f);
-                        var bezier = BezierUtil.Bezier3ByDir(pos0, -dir0, pos1, -dir1, true, true);
-                        float l = bezier.ArcLength(0.2f);
-                        if (accDistance + l >= distance) {
-                            float t = bezier.Travel(0, accDistance - distance);
-                            bezier = bezier.Cut(0, t);
-                        }
-                        accDistance += l;
-                        bezier.Render(cameraInfo, Color.yellow, hw: 2, alphaBlend: true, cutEnds: false);
-                        if (accDistance >= distance) {
-                            return;
-                        }
-                        finePathPositionIndex++;
-                    } else {
-                        //first loop.
-                        pos1 = pos0;
-                        dir1 = dir0; 
                     }
-
-                    Vector3 pos2 = pathPos.GetPositionAndDirection(out Vector3 dir2);
-                    RenderCircle(cameraInfo, pos2, Color.magenta, radius: 2);
-                    //if (i == 0) {
-                    //    RenderArrow(cameraInfo, pos1, dir1 * 4, Color.cyan);
-                    //    RenderArrow(cameraInfo, pos2, dir2 * 4, Color.magenta, size: 0.5f);
-                    //} 
-                    {
-                        Bezier3 bezier = pathPos.GetLane().m_bezier;
-                        float t2 = 1;
-                        if (pathPos.GetNodeID() == 0) {
-                            t2 = pathPos.m_offset * (1f / 255); // final path pos.
-                        }
-                        bezier = bezier.Cut(t1, t2);
-                        float l = bezier.ArcLength(0.2f);
-                        if (accDistance + l >= distance) {
-                            float t = bezier.Travel(0, distance - accDistance);
-                            bezier = bezier.Cut(0, t);
-                        }
-                        accDistance += l;
-                        bezier.Render(cameraInfo, Color.green, hw: 2, alphaBlend: true, cutEnds: false);
-                        if (accDistance >= distance) {
-                            return;
-                        }
-                    }
-
-                    t1 = 0;
-                    pos0 = pos2;
-                    dir0 = dir2;
+                    var pathPos0 = pathPos;
                     finePathPositionIndex++;
+                    if (!RollAndGetPathPos(ref pathUnitID, ref finePathPositionIndex, out pathPos))
+                        return;
+                    if ((finePathPositionIndex & 1) != 0) {
+                        if (pathPos.GetNodeID() != 0) {
+                            pathUnitID.ToPathUnit().CalculateTransitionBezier(finePathPositionIndex, out bezier);
+                            RenderCircle(cameraInfo, bezier.d, Color.cyan, radius: 1);
+                        } else {
+                            bezier = default;
+                        }
+                    } else {
+                        RenderCircle(cameraInfo, pathPos.GetPosition(), Color.magenta, radius: 2);
+                        bezier = pathPos.GetLane().m_bezier;
+                        float t1;
+                        if (pathPos.m_segment != pathPos0.m_segment) {
+                            t1 = pathPos.GetEndOffsetToward(pathPos0);
+                        } else {
+                            t1 = pathPos.m_offset * BYTE2FLOAT_OFFSET;
+                        }
+                        float t2 = pathPos.m_offset * BYTE2FLOAT_OFFSET;
+                        bezier = bezier.Cut(t1, t2);
+                    }
+
                 }
             } catch(Exception ex) { ex.Log(); }
-            static bool RollAndGetPathPos(ref uint pathUnitID, byte finePathIndex, out PathUnit.Position pathPos) {
+
+            static bool HandleBazier(RenderManager.CameraInfo cameraInfo, Bezier3 bezier, ref float accDistance, float distance) {
+                float l = bezier.ArcLength(0.2f);
+                if (accDistance + l >= distance) {
+                    float t = bezier.Travel(0, accDistance - distance);
+                    bezier = bezier.Cut(0, t);
+                }
+                accDistance += l;
+                bezier.Render(cameraInfo, Color.yellow, hw: 2, alphaBlend: true, cutEnds: false);
+                return accDistance < distance;
+            }
+
+            static bool RollAndGetPathPos(ref uint pathUnitID, ref byte finePathIndex, out PathUnit.Position pathPos) {
                 if (finePathIndex >= 24) {
                     finePathIndex = 0;
                     pathUnitID = pathUnitID.ToPathUnit().m_nextPathUnit;

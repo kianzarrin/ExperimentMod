@@ -1,16 +1,10 @@
 namespace VehicleDebugger {
     using ColossalFramework;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using KianCommons;
     using KianCommons.UI;
-    using ColossalFramework.UI;
 
     public static class ModSettings {
 
-        public const string FileName = "look ahead experiment";
+        public const string FileName = "vehicle-debugger";
 
         static ModSettings() {
             // Creating setting file - from SamsamTS

@@ -1,17 +1,43 @@
 namespace ExperimentMod {
     using ColossalFramework;
     using ColossalFramework.Math;
-    using KianCommons;
     using UnityEngine;
 
     public class VehicleDebugger : PathDebugger {
         public static VehicleDebugger Instance;
-        int targetPosIndex => ModSettings.LookTargetPos;
-
-        protected override void SimulationFrame(ushort id) {
-            ref var vehicle = ref id.ToVehicle();
-            TargetLookPosFrames[vehicle.m_lastFrame] = vehicle.GetTargetPos(targetPosIndex);
+        protected override void Awake() {
+            base.Awake();
+            Instance = this;
         }
+
+        protected override bool GetID(out ushort id) {
+            id = 0;
+            InstanceID selectedInstance = InstanceManager.instance.GetSelectedInstance();
+            if (selectedInstance.Type == InstanceType.Vehicle) {
+                id = selectedInstance.Vehicle;
+            }
+            return id != 0;
+        }
+
+        protected override void GetPathInfo(out uint pathUnitID, out byte lastOffset, out byte finePathPositionIndex, out Vector3 refPos) {
+            ref Vehicle vehicle = ref GetID().ToVehicle();
+            pathUnitID = vehicle.m_path;
+            lastOffset = vehicle.m_lastPathOffset;
+            finePathPositionIndex = vehicle.m_pathPositionIndex;
+            refPos = vehicle.GetLastFramePosition();
+        }
+
+        protected override uint GetTargetFrame() {
+            ushort id = GetID();
+            ref Vehicle vehicle = ref id.ToVehicle();
+            return vehicle.GetTargetFrame(vehicle.Info, id);
+        }
+
+        protected override void GetSmoothPosition(out Vector3 pos, out Quaternion rot) {
+            ushort id = GetID();
+            id.ToVehicle().GetSmoothPosition(id, out pos, out rot);
+        }
+
 
         protected override void RenderOverlay(RenderManager.CameraInfo cameraInfo, ushort id) {
             ref var vehicle = ref id.ToVehicle();
@@ -66,39 +92,6 @@ namespace ExperimentMod {
                 frame.m_position.y + 0.1f,
                 renderLimits: true,
                 alphaBlend: alphaBlend);
-        }
-
-        protected override void Awake() {
-            base.Awake();
-            Instance = this;
-        }
-
-        protected override void GetPathInfo(out uint pathUnitID, out byte lastOffset, out byte finePathPositionIndex, out Vector3 refPos) {
-            ref Vehicle vehicle = ref GetID().ToVehicle();
-            pathUnitID = vehicle.m_path;
-            lastOffset = vehicle.m_lastPathOffset;
-            finePathPositionIndex = vehicle.m_pathPositionIndex;
-            refPos = vehicle.GetLastFramePosition();
-        }
-
-        protected override uint GetTargetFrame() {
-            ushort id = GetID();
-            ref Vehicle vehicle = ref id.ToVehicle();
-            return vehicle.GetTargetFrame(vehicle.Info, id);
-        }
-
-        protected override void GetSmoothPosition(out Vector3 pos, out Quaternion rot) {
-            ushort id = GetID();
-            id.ToVehicle().GetSmoothPosition(id, out pos, out rot);
-        }
-
-        protected override bool GetID(out ushort id) {
-            id = 0;
-            InstanceID selectedInstance = InstanceManager.instance.GetSelectedInstance();
-            if (selectedInstance.Type == InstanceType.Vehicle) {
-                id = selectedInstance.Vehicle;
-            }
-            return id != 0;
         }
     }
 }

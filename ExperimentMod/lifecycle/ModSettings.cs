@@ -25,29 +25,12 @@ namespace ExperimentMod {
         public static SavedBool ShowSeg = new SavedBool("ShowSeg", FileName, true);
         public static SavedBool ShowPathPos = new SavedBool("ShowPathPos", FileName, false);
 
-        public static SavedBool ShowLookTarget = new SavedBool("ShowLookTarget", FileName, false);
-        public static SavedBool ShowLookArrow = new SavedBool("ShowLookArrow", FileName, false);
-        public static SavedInt LookTargetPos = new SavedInt("LookTargetPos", FileName, 3);
-        static UISlider Slider;
         public static void OnSettingsUI(UIHelper helper) {
             helper.AddSavedToggle("Render Overlay", RenderOverlay).tooltip = "switch on/off all overlay";
             helper.AddSavedToggle("render target position[s] overlay", ShowTargetPos);
             helper.AddSavedToggle("render frames overlay", ShowFrames);
             helper.AddSavedToggle("render vehicle seg", ShowSeg);
             helper.AddSavedToggle("Show Path unit positions", ShowPathPos);
-
-            var g = helper.AddGroup("Look ahead");
-            g.AddSavedToggle("render look arrow overlay", ShowLookArrow);
-            g.AddSavedToggle("render look targets overlay", ShowLookTarget);
-            Slider = g.AddSlider(
-                "choose targetPos to use:",
-                min:0, max:3, step:1,
-                defaultValue: LookTargetPos.value,
-                delegate(float val) {
-                    LookTargetPos.value = (int)val;
-                    Slider.tooltip = $"m_targetPos{val}";
-                    Slider.parent.RefreshTooltip();
-                }) as UISlider;
         }
     }
 }

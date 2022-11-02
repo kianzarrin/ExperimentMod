@@ -4,7 +4,6 @@ namespace ExperimentMod {
     using KianCommons.Math;
     using System;
     using UnityEngine;
-    using static NetInfo;
 
     public static class Extensions {
         public const float BYTE2FLOAT_OFFSET = 1f / 255;
@@ -74,13 +73,26 @@ namespace ExperimentMod {
         protected const float alpha = .75f;
         protected const bool renderLimits = true;
         protected const bool alphaBlend = true;
-        protected static Vector4[] TargetLookPosFrames = new Vector4[4];
         protected virtual bool showFrame => ModSettings.ShowFrames;
         protected virtual bool showTargets => ModSettings.ShowTargetPos;
-        protected virtual bool showLookTargets => ModSettings.ShowLookTarget;
-        protected virtual bool showArrow => ModSettings.ShowLookArrow;
         protected virtual bool showSeg => ModSettings.ShowSeg;
         protected virtual bool showPathPos => ModSettings.ShowPathPos;
+
+        protected virtual InstanceID SelectedInstance => InstanceManager.instance.GetSelectedInstance();
+        protected abstract bool GetID(out ushort id);
+        protected ushort GetID() {
+            GetID(out ushort id);
+            return id;
+        }
+
+        protected virtual void Awake() =>Log.Called(GetType());
+        protected virtual void Destroy() => Log.Called(GetType());
+
+        protected abstract uint GetTargetFrame();
+
+        protected abstract void GetPathInfo(out uint pathUnitID, out byte lastOffset, out byte finePathPositionIndex, out Vector3 refPos);
+
+        protected abstract void GetSmoothPosition(out Vector3 pos, out Quaternion rot);
 
         public static void RenderOverlayALL(RenderManager.CameraInfo cameraInfo) {
             try {
@@ -90,45 +102,9 @@ namespace ExperimentMod {
             } catch (Exception ex) { ex.Log(false); }
 
         }
-        public static void SimulationFrameALL() {
-            try {
-                HumanDebugger.Instance.SimulationFrame();
-                VehicleDebugger.Instance.SimulationFrame();
-            } catch (Exception ex) { ex.Log(false); }
-        }
-
-        protected virtual void Awake() {
-            Log.Called(GetType());
-        }
-        protected virtual void Destroy() {
-            Log.Called(GetType());
-        }
-        protected virtual void LateUpdate() { }
 
         protected virtual void RenderOverlay(RenderManager.CameraInfo cameraInfo) {
             if (GetID(out ushort id)) {
-                if (showLookTargets) {
-                    uint targetFrame = GetTargetFrame();
-                    for (int i = 0; i < 4; i++) {
-                        uint targetF = (uint)(targetFrame - (16 * i));
-                        Color colorT = new Color32(255, (byte)(50 + 50 * i), (byte)(50 * i), 255);
-                        float hw = 1.5f;
-                        float r = hw * (.25f + .25f * i);
-                        RenderCircle(cameraInfo, GetTargetLookPosFrame(targetF), colorT, r);
-                    }
-                }
-                if(showArrow) {
-                    GetSmoothPosition(out var pos0, out var rot0);
-                    var lookPos = GetSmoothLookPos();
-                    var lookdir = lookPos - pos0;
-                    const float minDistance = .3f;
-                    if (lookdir.sqrMagnitude > minDistance * minDistance) {
-                        RenderArrow(cameraInfo, pos0, lookdir, Color.red);
-                    } else {
-                        lookdir = rot0 * Vector3.forward;
-                        RenderArrow(cameraInfo, pos0, lookdir, new Color(1, 0, 1));
-                    }
-                }
                 if (showPathPos) {
                     RenderPathOverlay(cameraInfo);
                 }
@@ -186,36 +162,7 @@ namespace ExperimentMod {
 
         protected abstract void RenderOverlay(RenderManager.CameraInfo cameraInfo, ushort id);
 
-        protected void SimulationFrame() {
-            if (GetID(out ushort id)) {
-                SimulationFrame(id);
-            }
-        }
 
-        protected abstract void SimulationFrame(ushort id);
-        protected abstract uint GetTargetFrame();
-        protected virtual Vector3 GetSmoothLookPos() {
-            uint targetFrame = GetTargetFrame();
-            Vector4 pos1 = GetTargetLookPosFrame(targetFrame - 16U);
-            Vector4 pos2 = GetTargetLookPosFrame(targetFrame - 0);
-            float t = ((targetFrame & 15U) + SimulationManager.instance.m_referenceTimer) * 0.0625f;
-            return Vector3.Lerp(pos1, pos2, t);
-        }
-
-        protected abstract void GetPathInfo(out uint pathUnitID, out byte lastOffset, out byte finePathPositionIndex, out Vector3 refPos);
-
-        protected abstract void GetSmoothPosition(out Vector3 pos, out Quaternion rot);
-        protected virtual InstanceID SelectedInstance => InstanceManager.instance.GetSelectedInstance();
-        protected abstract bool GetID(out ushort id);
-        protected ushort GetID() {
-            GetID(out ushort id);
-            return id;
-        }
-
-        protected Vector4 GetTargetLookPosFrame(uint simulationFrame) {
-            uint index = simulationFrame >> 4 & 3U;
-            return TargetLookPosFrames[index];
-        }
 
         protected void RenderArrow(RenderManager.CameraInfo cameraInfo, Vector3 pos, Vector3 dir, Color color, float size = 0.1f) {
             color.a = alpha;

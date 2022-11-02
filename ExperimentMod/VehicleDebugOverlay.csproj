@@ -1,20 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{f6feab9b-fe95-4b86-a1e3-b3833615b3c0}</ProjectGuid>
     <TargetFramework>net35</TargetFramework>
     <Deterministic>false</Deterministic>
-    <Copyright>Copyright ©  2020</Copyright>
     <Deterministic>false</Deterministic>
     <AssemblyVersion>2.5.0.*</AssemblyVersion>
-    <FileAlignment>512</FileAlignment>
     <LangVersion>latest</LangVersion>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
     <PathMap>$(MSBuildProjectDirectory)\=$(ProjectName)\</PathMap>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DefineConstants />

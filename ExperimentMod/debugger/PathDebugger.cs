@@ -163,26 +163,24 @@ namespace ExperimentMod {
                     out Vector3 pos0,
                     out Vector3 velocity0);
                 RenderCircle(cameraInfo, pos0, Color.blue, 1);
-                if (pathUnitID == 0) return;
 
-                PathUnit.Position pathPos;
                 float speed = velocity0.magnitude * 5; // meters per second
                 speed = Math.Max(5, speed);
                 float seconds = 5;
                 float distance = speed * seconds;// velocity0.magnitude * 20; // 10 seconds
-                Log.DebugWait("speed=" + velocity0.magnitude);
                 float accDistance = 0;
+
                 if (finePathPositionIndex == 255) {
                     finePathPositionIndex = 0;// initial position
-                    pathPos = pathUnitID.ToPathUnit().GetPosition(finePathPositionIndex >> 1);
                     if (!pathUnitID.ToPathUnit().CalculatePathPositionOffset(
                         0, pos0, out lastOffset)) {
                         return;
                     }
-                } else {
-                    pathPos = pathUnitID.ToPathUnit().GetPosition(finePathPositionIndex >> 1);
-                    if (pathPos.m_segment == 0) return;
                 }
+
+                if (pathUnitID == 0) return;
+                var pathPos = pathUnitID.ToPathUnit().GetPosition(finePathPositionIndex >> 1);
+                if (pathPos.m_segment == 0) return;
 
                 Bezier3 bezier;
                 if ((finePathPositionIndex & 1) == 0) { 
@@ -194,7 +192,7 @@ namespace ExperimentMod {
                 }
                 RenderCircle(cameraInfo, bezier.d, Color.cyan, radius: 1);
                 RenderCircle(cameraInfo, bezier.a, Color.red, radius: 1);
-                RenderCircle(cameraInfo, pathPos.GetPosition(), Color.magenta, radius: 1);
+                RenderCircle(cameraInfo, pathPos.GetPosition(), Color.magenta, radius: 2);
 
 
                 while (true) {

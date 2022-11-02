@@ -125,6 +125,14 @@ namespace VehicleDebugger {
                 if (!RollAndGetPathPos(ref pathUnitID, ref pathIndex, out var pathPos))
                     return;
 
+                // render previous path poses of the first path unit as dead black circles.
+                for(int pathIndex0 = 0; pathIndex0 < pathIndex; ++pathIndex0) {
+                    var pathPos0 = pathUnitID.ToPathUnit().GetPosition(pathIndex0);
+                    if (pathPos0.m_segment != 0) {
+                        RenderCircle(cameraInfo, pathPos.GetPosition(), Color.black, 2);
+                    }
+                }
+
                 Vector3 lastPos;
                 if ((finePathPositionIndex & 1) == 0) {
                     lastPos = pathPos.GetLane().CalculatePosition(lastOffset * BYTE2FLOAT_OFFSET);

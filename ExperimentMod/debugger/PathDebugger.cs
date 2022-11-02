@@ -1,4 +1,4 @@
-namespace ExperimentMod {
+namespace VehicleDebugger {
     using ColossalFramework.Math;
     using KianCommons;
     using KianCommons.Math;

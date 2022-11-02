@@ -1,4 +1,4 @@
-namespace ExperimentMod {
+namespace VehicleDebugger {
     using UnityEngine;
 
     public class HumanDebugger : PathDebugger {

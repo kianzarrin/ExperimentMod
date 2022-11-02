@@ -1,4 +1,4 @@
-namespace ExperimentMod {
+namespace VehicleDebugger {
     using System;
     using JetBrains.Annotations;
     using ICities;

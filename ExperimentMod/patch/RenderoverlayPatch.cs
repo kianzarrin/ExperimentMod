@@ -1,4 +1,4 @@
-namespace ExperimentMod.Patch {
+namespace VehicleDebugger.Patch {
     using HarmonyLib;
     using JetBrains.Annotations;
 

@@ -1,4 +1,4 @@
-namespace ExperimentMod {
+namespace VehicleDebugger {
     using ColossalFramework;
     using System;
     using System.Collections.Generic;

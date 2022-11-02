@@ -1,4 +1,4 @@
-namespace ExperimentMod {
+namespace VehicleDebugger {
     using ColossalFramework;
     using ColossalFramework.Math;
     using UnityEngine;

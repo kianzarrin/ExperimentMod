@@ -11,9 +11,9 @@ namespace VehicleDebugger {
     public class UserMod : LoadingExtensionBase, IUserMod , IModWithSettings {
         public static Version ModVersion => typeof(UserMod).Assembly.GetName().Version;
         public static string VersionString => ModVersion.ToString(2);
-        public string Name => "Experiment Mod " + VersionString;
+        public string Name => "Vehicle Debug Overlay" + VersionString;
         public string Description => "human/vehicle path debugger";
-        const string HARMONY_ID = "Kian.ExperimentMod";
+        const string HARMONY_ID = "Kian.VehicleDebugger";
 
         [UsedImplicitly]
         public void OnEnabled()

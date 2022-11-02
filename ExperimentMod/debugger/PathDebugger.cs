@@ -172,7 +172,6 @@ namespace ExperimentMod {
                 float distance = speed * seconds;// velocity0.magnitude * 20; // 10 seconds
                 Log.DebugWait("speed=" + velocity0.magnitude);
                 float accDistance = 0;
-                Vector3 dir0 = velocity0.normalized;
                 if (finePathPositionIndex == 255) {
                     finePathPositionIndex = 0;// initial position
                     pathPos = pathUnitID.ToPathUnit().GetPosition(finePathPositionIndex >> 1);
@@ -195,7 +194,7 @@ namespace ExperimentMod {
                 }
                 RenderCircle(cameraInfo, bezier.d, Color.cyan, radius: 1);
                 RenderCircle(cameraInfo, bezier.a, Color.red, radius: 1);
-                RenderCircle(cameraInfo, pathPos.GetPosition(), Color.magenta, radius: 2);
+                RenderCircle(cameraInfo, pathPos.GetPosition(), Color.magenta, radius: 1);
 
 
                 while (true) {

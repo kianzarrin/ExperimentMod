@@ -62,22 +62,20 @@ namespace ExperimentMod {
                 dir2 = -dir1;
                 return BezierUtil.Bezier3ByDir(
                     pos1, dir1, pos2, dir2);
-            } else if (pathPos1.OnPedestrianLane() && pathPos1.m_segment == pathPos2.m_segment) {
-                // pedestrian crossing or going to vehicle : straight line
-                Vector3 pos2 = pathPos2.GetPosition();
-                dir1 = (pos2 - pos1).normalized;
-                var dir2 = -dir1;
-                return BezierUtil.Bezier3ByDir(
-                    pos1, dir1, pos2, dir2);
             } else {
                 byte offset2 = pathPos2.GetEndOffsetToward(pathPos1);
                 pathPos2.CalculatePositionAndDirection(
                 offset2, out var pos2, out var dir2);
-                return BezierUtil.Bezier3ByDir(
-                    pos1, dir1, pos2, dir2, true, true);
+                if (pathPos1.OnPedestrianLane() && pathPos1.m_segment == pathPos2.m_segment) {
+                    // pedestrian crossing or going to vehicle : straight line
+                    dir1 = (pos2 - pos1).normalized;
+                    dir2 = -dir1;
+                    return BezierUtil.Bezier3ByDir(pos1, dir1, pos2, dir2);
+                } else {
+                    return BezierUtil.Bezier3ByDir(
+                        pos1, dir1, pos2, dir2, true, true);
+                }
             }
-
-
         }
 
         public static byte GetEndOffsetToward(this PathUnit.Position pathPos, PathUnit.Position pathPos0) {

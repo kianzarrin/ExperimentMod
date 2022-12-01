@@ -6,8 +6,6 @@ namespace ExperimentMod {
     using KianCommons.UI;
     using System;
     using UnityEngine;
-    using static NetInfo;
-    using static RenderManager;
 
     public static class Extensions {
         public const float BYTE2FLOAT_OFFSET = 1f / 255;
@@ -25,7 +23,11 @@ namespace ExperimentMod {
              ref VehicleManager.instance.m_vehicles.m_buffer[id];
         public static ref PathUnit ToPathUnit(this uint id) => ref PathManager.instance.m_pathUnits.m_buffer[id];
         public static ref NetLane GetLane(this ref PathUnit.Position pathPos) => ref PathManager.GetLaneID(pathPos).ToLane();
+        internal static NetInfo.Lane GetLaneInfo(this ref PathUnit.Position pathPos) =>
+            pathPos.m_segment.ToSegment().Info?.m_lanes?[pathPos.m_lane];
 
+        internal static bool OnPedestrianLane(this ref PathUnit.Position pathPos) =>
+            pathPos.GetLaneInfo().m_laneType == NetInfo.LaneType.Pedestrian;
         public static bool CalculateTransitionBezier(this PathUnit pathUnit, byte finePathPosIndex, out Bezier3 bezier) {
             bezier = default;
             if ((finePathPosIndex & 1) == 0) return false; // transition is odd
@@ -51,14 +53,7 @@ namespace ExperimentMod {
             pathPos1.CalculatePositionAndDirection(
         pathPos1.m_offset, out var pos1, out var dir1);
 
-            if (pathPos1.GetNodeID() != 0) {
-
-                byte offset2 = pathPos2.GetEndOffsetToward(pathPos1);
-                pathPos2.CalculatePositionAndDirection(
-                offset2, out var pos2, out var dir2);
-                return BezierUtil.Bezier3ByDir(
-                    pos1, dir1, pos2, dir2, true, true);
-            } else {
+            if (pathPos1.GetNodeID() == 0) {
                 // use pathPos1 offset because we are transitioning from road to pavement.
                 pathPos2.CalculatePositionAndDirection(
                 pathPos1.m_offset, out var pos2, out var dir2);
@@ -67,6 +62,19 @@ namespace ExperimentMod {
                 dir2 = -dir1;
                 return BezierUtil.Bezier3ByDir(
                     pos1, dir1, pos2, dir2);
+            } else if (pathPos1.OnPedestrianLane() && pathPos1.m_segment == pathPos2.m_segment) {
+                // pedestrian crossing or going to vehicle : straight line
+                Vector3 pos2 = pathPos2.GetPosition();
+                dir1 = (pos2 - pos1).normalized;
+                var dir2 = -dir1;
+                return BezierUtil.Bezier3ByDir(
+                    pos1, dir1, pos2, dir2);
+            } else {
+                byte offset2 = pathPos2.GetEndOffsetToward(pathPos1);
+                pathPos2.CalculatePositionAndDirection(
+                offset2, out var pos2, out var dir2);
+                return BezierUtil.Bezier3ByDir(
+                    pos1, dir1, pos2, dir2, true, true);
             }
 
 

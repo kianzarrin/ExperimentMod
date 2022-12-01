@@ -164,6 +164,8 @@ namespace ExperimentMod {
                     out Vector3 velocity0);
                 RenderCircle(cameraInfo, pos0, Color.blue, 1);
 
+                if (pathUnitID == 0) return;
+
                 float speed = velocity0.magnitude * 5; // meters per second
                 speed = Math.Max(5, speed);
                 float seconds = 5;
@@ -178,9 +180,15 @@ namespace ExperimentMod {
                     }
                 }
 
-                if (pathUnitID == 0) return;
                 var pathPos = pathUnitID.ToPathUnit().GetPosition(finePathPositionIndex >> 1);
                 if (pathPos.m_segment == 0) return;
+
+                for (int pathPosIndex0 = 0; pathPosIndex0 < (finePathPositionIndex >> 1); ++pathPosIndex0) {
+                    var pathPos0 = pathUnitID.ToPathUnit().GetPosition(finePathPositionIndex >> 1);
+                    if (pathPos0.m_segment != 0) {
+                        RenderCircle(cameraInfo, pathPos0.GetPosition(), Color.black, radius: 2);
+                    }
+                }
 
                 Bezier3 bezier;
                 if ((finePathPositionIndex & 1) == 0) { 

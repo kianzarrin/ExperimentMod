@@ -171,8 +171,22 @@ namespace ExperimentMod {
                     out Vector3 pos0,
                     out Vector3 velocity0);
                 RenderCircle(cameraInfo, pos0, Color.blue, 1);
-
                 if (pathUnitID == 0) return;
+                if (this is HumanDebugger debugger) {
+                    ref CitizenInstance ci = ref debugger.GetID().ToCitizenInstance();
+                    if(debugger.GetID().ToCitizenInstance().m_flags.IsFlagSet(
+                        CitizenInstance.Flags.WaitingTransport | CitizenInstance.Flags.EnteringVehicle | CitizenInstance.Flags.HangAround)) {
+                        // can't use path unit
+                        var line = new Segment3(pos0, ci.m_targetPos);
+                        Singleton<ToolManager>.instance.m_drawCallData.m_overlayCalls++;
+                        RenderManager.instance.OverlayEffect.DrawSegment(
+                            cameraInfo, Color.yellow, line,
+                            size: 1,dashLen: 0,
+                            line.a.y-5, line.a.y + 5,
+                            false, true);
+                    }
+                }
+
 
                 float speed = velocity0.magnitude * 5; // meters per second
                 speed = Math.Max(5, speed);

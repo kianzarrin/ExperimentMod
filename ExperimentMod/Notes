@@ -9,8 +9,13 @@ LoadSceneAsync("LoadingAnimation")              LoadSimulationData
                                                     m_metaDataLoaded = true;
 =====================================================================================================================
 MetaDataLoaded                                      DataSerializer.Deserialize<SimulationManager.Data>
-EssentialScenesLoaded                               PrefabCollection<NetInfo>.BindPrefabs
+EssentialScenesLoaded                                   Deserialize
+=====================================================================================================================
+                                                        AfterDeserialize
+                                                    PrefabCollection<NetInfo>.BindPrefabs
 RenderDataReady                                     SimulationManager.Managers_UpdateData
+=====================================================================================================================
+                                                        InitRenderData
 LoadSceneAsync(playerScene);                        SimulationManager.Managers_LateUpdateData
     OnSettingsUI                                        m_managers[i].LateUpdateData(mode);
                                                         SimulationManager.LateUpdateData

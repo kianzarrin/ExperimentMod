@@ -87,8 +87,8 @@ namespace ExperimentMod {
         }
         public void EarlyUpdateData() => Log.Stack();
         public void UpdateData(SimulationManager.UpdateMode mode) => Log.Stack();
-        public void LateUpdateData(SimulationManager.UpdateMode mode) => Log.Stack();
         public void InitRenderData() => Log.Stack();
+        public void LateUpdateData(SimulationManager.UpdateMode mode) => Log.Stack();
         public void CheckReferences() => Log.Stack();
         public DrawCallData GetDrawCallData() => default;
         public void BeginRendering(RenderManager.CameraInfo cameraInfo) { }

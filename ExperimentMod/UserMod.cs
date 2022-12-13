@@ -60,6 +60,12 @@ namespace ExperimentMod {
     }
 
     public class KianManager : Singleton<KianManager>, ISimulationManager, IRenderableManager {
+        public class Data : IDataContainer {
+            public void Serialize(DataSerializer s) => Log.Stack();
+            public void Deserialize(DataSerializer s) => Log.Stack();
+            public void AfterDeserialize(DataSerializer s) => Log.Stack();
+        }
+
         static void RegisterManager(object manager) {
             try {
                 ReflectionHelpers.InvokeMethod<SimulationManager>("RegisterManager", manager);
@@ -75,7 +81,10 @@ namespace ExperimentMod {
 
         public string GetName() => "KianManager";
         public void SimulationStep(int subStep) => Log.Stack();
-        public void GetData(FastList<IDataContainer> data) => Log.Stack();
+        public void GetData(FastList<IDataContainer> data) {
+            Log.Stack();
+            data.Add(new Data());
+        }
         public void EarlyUpdateData() => Log.Stack();
         public void UpdateData(SimulationManager.UpdateMode mode) => Log.Stack();
         public void LateUpdateData(SimulationManager.UpdateMode mode) => Log.Stack();

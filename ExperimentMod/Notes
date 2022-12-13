@@ -1,0 +1,21 @@
+Main thread                                     Simulation Thread
+PreLevelLoaded
+LoadSceneAsync("LoadingAnimation")              LoadSimulationData
+                                                    Singleton<PathManager>.instance.WaitForAllPaths
+                                                    SimulationManager.Managers_EarlyUpdateData
+                                                    DataSerializer.Deserialize<SimulationMetaData>
+                                                        Deserialize
+                                                        AfterDeserialize
+                                                    m_metaDataLoaded = true;
+=====================================================================================================================
+MetaDataLoaded                                      DataSerializer.Deserialize<SimulationManager.Data>
+EssentialScenesLoaded                               PrefabCollection<NetInfo>.BindPrefabs
+RenderDataReady                                     SimulationManager.Managers_UpdateData
+LoadSceneAsync(playerScene);                        SimulationManager.Managers_LateUpdateData
+    OnSettingsUI                                        m_managers[i].LateUpdateData(mode);
+                                                        SimulationManager.LateUpdateData
+                                                            m_SerializableDataWrapper.OnLoadData();
+                                                            if newGame: for(many times, m_currentFrameIndex++): m_managers[i].SimulationStep(1000);
+=====================================================================================================================
+m_simulationDataReady                               SimulationManager.SimulationThread()->SimulationStep() is running in background
+LoadLevelComplete

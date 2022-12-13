@@ -1,48 +1,94 @@
 namespace ExperimentMod {
-    using CitiesHarmony.API;
+    using ColossalFramework;
+    using ColossalFramework.IO;
     using ICities;
-    using JetBrains.Annotations;
     using KianCommons;
+    using KianCommons.IImplict;
     using System;
-    using System.Diagnostics;
+    using UnityEngine;
 
-    public class UserMod : IUserMod {
-        static UserMod() {
-            Log.Debug("ExperimentMod.UserMod static constructor called!" + Environment.StackTrace);
-        }
-
-        public static Version ModVersion => typeof(UserMod).Assembly.GetName().Version;
-        public static string VersionString => ModVersion.ToString(2);
-        public string Name => "Experiment Mod " + VersionString;
-        public string Description => "control Road/junction transitions";
+    public class KianUserMod : IUserMod, ILoadingExtension, IMod, IModWithSettings {
+        static KianUserMod() => Log.Stack();
+        public KianUserMod() => Log.Stack();
+        public string Name => "LifeCycle Log ";
+        public string Description => "log order/thread/stack-trace of lifecycle evens while loading game";
         const string HARMONY_ID = "Kian.ExperimentMod";
 
-        [UsedImplicitly]
         public void OnEnabled() {
             Log.Buffered = false;
             Log.VERBOSE = false;
+            Log.Stack();
 
-            Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
+            LoadingManager.instance.m_introLoaded += Instance_m_introLoaded;
+            LoadingManager.instance.m_levelPreLoaded += Instance_m_levelPreLoaded;
+            LoadingManager.instance.m_levelPreUnloaded += Instance_m_levelPreUnloaded;
+            LoadingManager.instance.m_levelUnloaded += Instance_m_levelUnloaded;
+            LoadingManager.instance.m_metaDataReady += Instance_m_metaDataReady;
+            LoadingManager.instance.m_simulationDataReady += Instance_m_simulationDataReady;
+            KianManager.Ensure();
 
-            HarmonyHelper.DoOnHarmonyReady(() => HarmonyUtil.InstallHarmony(HARMONY_ID));
+            //HarmonyHelper.DoOnHarmonyReady(() => HarmonyUtil.InstallHarmony(HARMONY_ID));
+        }
+        public void OnDisabled() {
+            Log.Stack();
+            //HarmonyUtil.UninstallHarmony(HARMONY_ID);
+        }
+        public void OnSettingsUI(UIHelper helper) => Log.Stack();
 
-            if (HelpersExtensions.InGame) {
-                for (ushort nodeID = 1; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
-                    if (nodeID.ToNode().m_flags.CheckFlags(NetNode.Flags.Created | NetNode.Flags.Transition, NetNode.Flags.Deleted))
-                        NetManager.instance.UpdateNode(nodeID);
-                }
+        #region events
+        private void Instance_m_simulationDataReady() => Log.Stack();
+        private void Instance_m_metaDataReady() => Log.Stack();
+        private void Instance_m_levelUnloaded() => Log.Stack();
+        private void Instance_m_levelPreUnloaded() => Log.Stack();
+        private void Instance_m_levelPreLoaded() => Log.Stack();
+        private void Instance_m_introLoaded() => Log.Stack();
+        #endregion
+
+        #region LoadingEtension
+        public void OnCreated(ILoading loading) => Log.Stack();
+        public void OnReleased() => Log.Stack();
+        public void OnLevelLoaded(LoadMode mode) => Log.Stack();
+        public void OnLevelUnloading() => Log.Stack();
+        #endregion
+    }
+
+    public class KianSerializableDataExtension : ISerializableDataExtension {
+        public void OnCreated(ISerializableData serializedData) => Log.Stack();
+        public void OnReleased() => Log.Stack();
+        public void OnLoadData() => Log.Stack();
+        public void OnSaveData() => Log.Stack();
+    }
+
+    public class KianManager : Singleton<KianManager>, ISimulationManager, IRenderableManager {
+        static void RegisterManager(object manager) {
+            try {
+                ReflectionHelpers.InvokeMethod<SimulationManager>("RegisterManager", manager);
+            } catch(Exception ex) {
+                ex.Log();
             }
         }
 
-        [UsedImplicitly]
-        public void OnDisabled() {
-            HarmonyUtil.UninstallHarmony(HARMONY_ID);
-        }
-
-        [UsedImplicitly]
-        public void OnSettingsUI(UIHelperBase helper) {
+        void Awake() {
             Log.Stack();
+            RegisterManager(this);
         }
 
+        public string GetName() => "KianManager";
+        public void SimulationStep(int subStep) => Log.Stack();
+        public void GetData(FastList<IDataContainer> data) => Log.Stack();
+        public void EarlyUpdateData() => Log.Stack();
+        public void UpdateData(SimulationManager.UpdateMode mode) => Log.Stack();
+        public void LateUpdateData(SimulationManager.UpdateMode mode) => Log.Stack();
+        public void InitRenderData() => Log.Stack();
+        public void CheckReferences() => Log.Stack();
+        public DrawCallData GetDrawCallData() => default;
+        public void BeginRendering(RenderManager.CameraInfo cameraInfo) { }
+        public void EndRendering(RenderManager.CameraInfo cameraInfo) { }
+        public void BeginOverlay(RenderManager.CameraInfo cameraInfo) { }
+        public void EndOverlay(RenderManager.CameraInfo cameraInfo) { }
+        public void UndergroundOverlay(RenderManager.CameraInfo cameraInfo) { }
+        public bool CalculateGroupData(int groupX, int groupZ, int layer, ref int vertexCount, ref int triangleCount, ref int objectCount, ref RenderGroup.VertexArrays vertexArrays) => true;
+        public void PopulateGroupData(int groupX, int groupZ, int layer, ref int vertexIndex, ref int triangleIndex, Vector3 groupPosition, RenderGroup.MeshData data, ref Vector3 min, ref Vector3 max, ref float maxRenderDistance, ref float maxInstanceDistance, ref bool requireSurfaceMaps) { }
+        public ThreadProfiler GetSimulationProfiler() => default;
     }
 }

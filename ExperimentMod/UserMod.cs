@@ -1,9 +1,9 @@
-﻿namespace ExperimentMod {
-    using System;
-    using JetBrains.Annotations;
-    using ICities;
+namespace ExperimentMod {
     using CitiesHarmony.API;
+    using ICities;
+    using JetBrains.Annotations;
     using KianCommons;
+    using System;
     using System.Diagnostics;
 
     public class UserMod : IUserMod {
@@ -18,34 +18,31 @@
         const string HARMONY_ID = "Kian.ExperimentMod";
 
         [UsedImplicitly]
-        public void OnEnabled()
-        {
+        public void OnEnabled() {
             Log.Buffered = false;
             Log.VERBOSE = false;
 
             Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
-            
+
             HarmonyHelper.DoOnHarmonyReady(() => HarmonyUtil.InstallHarmony(HARMONY_ID));
 
             if (HelpersExtensions.InGame) {
-                for (ushort nodeID =1; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
-                    if(nodeID.ToNode().m_flags.CheckFlags(NetNode.Flags.Created | NetNode.Flags.Transition, NetNode.Flags.Deleted))
+                for (ushort nodeID = 1; nodeID < NetManager.MAX_NODE_COUNT; ++nodeID) {
+                    if (nodeID.ToNode().m_flags.CheckFlags(NetNode.Flags.Created | NetNode.Flags.Transition, NetNode.Flags.Deleted))
                         NetManager.instance.UpdateNode(nodeID);
                 }
             }
         }
 
         [UsedImplicitly]
-        public void OnDisabled()
-        {
+        public void OnDisabled() {
             HarmonyUtil.UninstallHarmony(HARMONY_ID);
         }
 
-        //[UsedImplicitly]
-        //public void OnSettingsUI(UIHelperBase helper)
-        //{
-        //    GUI.Settings.OnSettingsUI(helper);
-        //}
+        [UsedImplicitly]
+        public void OnSettingsUI(UIHelperBase helper) {
+            Log.Stack();
+        }
 
     }
 }

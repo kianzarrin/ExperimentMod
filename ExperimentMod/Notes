@@ -1,6 +1,7 @@
-Main thread                                     Simulation Thread
+Main thread                                         Simulation Thread
 PreLevelLoaded
-LoadSceneAsync("LoadingAnimation")              LoadSimulationData
+LoadSceneAsync("LoadingAnimation")
+----->                                              LoadSimulationData
                                                     Singleton<PathManager>.instance.WaitForAllPaths
                                                     SimulationManager.Managers_EarlyUpdateData
                                                     DataSerializer.Deserialize<SimulationMetaData>
@@ -22,5 +23,5 @@ LoadSceneAsync(playerScene);                        SimulationManager.Managers_L
                                                             m_SerializableDataWrapper.OnLoadData();
                                                             if newGame: for(many times, m_currentFrameIndex++): m_managers[i].SimulationStep(1000);
 =====================================================================================================================
-m_simulationDataReady                               SimulationManager.SimulationThread()->SimulationStep() is running in background
+m_simulationDataLoaded                              SimulationManager.SimulationThread()->SimulationStep() is running in background
 LoadLevelComplete

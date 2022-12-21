@@ -6,6 +6,17 @@
     using KianCommons;
     using System.Diagnostics;
 
+    public class UserMod2 : IUserMod
+    {
+        public string Name => "break";
+        public string Description => Name;
+
+        public void OnSettingsUI(UIHelperBase helper)
+        {
+
+        }
+    }
+
     public class UserMod : IUserMod {
         static UserMod() {
             Log.Debug("ExperimentMod.UserMod static constructor called!" + Environment.StackTrace);
@@ -41,11 +52,11 @@
             HarmonyUtil.UninstallHarmony(HARMONY_ID);
         }
 
-        //[UsedImplicitly]
-        //public void OnSettingsUI(UIHelperBase helper)
-        //{
-        //    GUI.Settings.OnSettingsUI(helper);
-        //}
+        [UsedImplicitly]
+        public void OnSettingsUI(UIHelperBase helper)
+        {
+            
+        }
 
     }
 }

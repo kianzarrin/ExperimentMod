@@ -1,10 +1,11 @@
-﻿namespace ExperimentMod {
+namespace ThrowExceptions {
     using System;
     using JetBrains.Annotations;
     using ICities;
     using CitiesHarmony.API;
     using KianCommons;
     using System.Diagnostics;
+    using UnityEngine;
 
     public class UserMod : IUserMod {
         public string Name => "Throw exceptions";
@@ -16,20 +17,26 @@
         {
             Log.Buffered = false;
             Log.VERBOSE = false;
-
-            Log.Debug("Testing StackTrace:\n" + new StackTrace(true).ToString(), copyToGameLog: false);
-            
-            HarmonyHelper.DoOnHarmonyReady(() => HarmonyUtil.InstallHarmony(HARMONY_ID));
-
-            if (HelpersExtensions.InGame) {
-
+            Log.Stack();
+            if (!LoadingManager.instance.m_currentlyLoading) {
+                ThrowExceptionsGO.Ensure();
+            } else {
+                LoadingManager.instance.m_introLoaded += ThrowExceptionsGO.Ensure;
             }
+
+            //HarmonyHelper.DoOnHarmonyReady(() => HarmonyUtil.InstallHarmony(HARMONY_ID));
+
+            //if (HelpersExtensions.InGame) {
+
+            //}
         }
 
         [UsedImplicitly]
         public void OnDisabled()
         {
-            HarmonyUtil.UninstallHarmony(HARMONY_ID);
+            LoadingManager.instance.m_introLoaded -= ThrowExceptionsGO.Ensure;
+            GameObject.Destroy(ThrowExceptionsGO.instance);
+            //HarmonyUtil.UninstallHarmony(HARMONY_ID);
         }
 
         [UsedImplicitly]

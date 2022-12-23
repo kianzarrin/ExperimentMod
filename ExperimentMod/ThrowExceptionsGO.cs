@@ -2,12 +2,13 @@ namespace ThrowExceptions;
 using ColossalFramework;
 using KianCommons;
 using KianCommons.IImplict;
+using UnityEngine;
 
-internal class GO :
-    Singleton<GO>,
+internal class ThrowExceptionsGO : Singleton<ThrowExceptionsGO>,
     IAwakingObject, IStartingObject, IDestroyableObject,
     IEnablablingObject, IDisablablingObject,
     IGUIObject, IUpdatableObject, ILateUpdatableObject {
+
     public void Awake() {
         //throw new System.NotImplementedException();
     }

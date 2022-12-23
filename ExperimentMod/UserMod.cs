@@ -18,11 +18,11 @@ namespace ThrowExceptions {
             Log.Buffered = false;
             Log.VERBOSE = false;
             Log.Stack();
-            if (!LoadingManager.instance.m_currentlyLoading) {
-                ThrowExceptionsGO.Ensure();
-            } else {
-                LoadingManager.instance.m_introLoaded += ThrowExceptionsGO.Ensure;
-            }
+            //if (!LoadingManager.instance.m_currentlyLoading) {
+            //    ThrowExceptionsGO.Ensure();
+            //} else {
+            //    LoadingManager.instance.m_introLoaded += ThrowExceptionsGO.Ensure;
+            //}
 
             //HarmonyHelper.DoOnHarmonyReady(() => HarmonyUtil.InstallHarmony(HARMONY_ID));
 

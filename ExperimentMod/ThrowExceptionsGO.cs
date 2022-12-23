@@ -29,12 +29,12 @@ internal class ThrowExceptionsGO : Singleton<ThrowExceptionsGO>,
     }
 
     public void OnGUI() {
-        //throw new System.NotImplementedException();
+        Log.Called();
+        throw new System.NotImplementedException();
     }
 
     public void Update() {
-        Log.Called();
-        throw new System.NotImplementedException();
+        //throw new System.NotImplementedException();
     }
 
     public void LateUpdate() {
